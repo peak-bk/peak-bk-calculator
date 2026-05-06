@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Peak Bookkeeping — Pricing Calculator</title>
+<style>
+  :root {
+    --bg: #f9f4f0;
+    --card: #ffffff;
+    --ink: #201714;
+    --ink-2: #32201a;
+    --muted: #644f46;
+    --rose: #f5ebec;
+    --rose-2: #faf4f0;
+    --accent: #a88c90;
+    --line: #e5d6d1;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px 64px; }
+  header.hero {
+    background: var(--ink-2);
+    color: #fff;
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  header.hero .logo-block {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  header.hero img { display: block; width: 200px; height: auto; }
+  header.hero .titles { flex: 1; min-width: 280px; }
+  header.hero h1 {
+    font-family: 'Helvetica Neue', sans-serif;
+    font-weight: 300;
+    font-size: 28px;
+    margin: 0 0 6px;
+    letter-spacing: 0.2px;
+  }
+  header.hero p { margin: 0; opacity: 0.9; font-size: 13px; max-width: 620px; }
+
+  /* Tier cards */
+  .tiers {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 1000px) { .tiers { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px)  { .tiers { grid-template-columns: 1fr; } }
+  .tier {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 16px 18px;
+    transition: border-color .15s, box-shadow .15s, transform .15s;
+    cursor: pointer;
+  }
+  .tier:hover:not(.active) {
+    border-color: #c8b8a8;
+    transform: translateY(-1px);
+  }
+  .tier.active {
+    border-color: var(--ink-2);
+    box-shadow: 0 6px 18px rgba(50,32,26,0.10);
+    transform: translateY(-2px);
+  }
+  .tier-name { font-size: 11px; letter-spacing: 1.4px; font-weight: 700; color: var(--ink-2); margin-bottom: 6px; }
+  .tier-price {
+    font-family: 'Helvetica Neue', sans-serif;
+    font-weight: 300;
+    font-size: 28px;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .tier-price small { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 2px; }
+  .tier-blurb { color: var(--muted); font-size: 12px; margin: 8px 0 10px; min-height: 32px; }
+  .tier ul { margin: 0; padding-left: 16px; }
+  .tier li { font-size: 12px; margin-bottom: 3px; }
+  .tier .badges { margin-top: 10px; display: flex; gap: 4px; flex-wrap: wrap; min-height: 18px; }
+  .tier .badge {
+    display: none;
+    background: var(--ink-2);
+    color: #fff;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+  .tier.active .badge.selected-badge { display: inline-block; }
+  .tier.recommended .badge.recommended-badge {
+    display: inline-block;
+    background: #2c5f3d;
+  }
+  .tier-note {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    font-style: italic;
+    min-height: 14px;
+  }
+  .tier.recommended .tier-note { color: #2c5f3d; font-style: normal; font-weight: 500; }
+  .tier-overrride-banner {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin: -16px 0 24px;
+    display: none;
+  }
+  .tier-overrride-banner.show { display: block; }
+  .tier-overrride-banner a {
+    color: var(--ink-2);
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  /* Layout */
+  .grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 22px 22px 18px;
+    border: 1px solid var(--line);
+    margin-bottom: 18px;
+  }
+  .panel h2 {
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    margin: 0 0 16px;
+    color: var(--ink-2);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .field { margin-bottom: 14px; }
+  .field label.lbl { display: block; font-weight: 700; color: var(--ink); margin-bottom: 4px; font-size: 13px; }
+  .field .hint { color: var(--muted); font-size: 11px; margin-top: 4px; }
+  .field input[type=text],
+  .field input[type=number],
+  .field input[type=email],
+  .field input[type=tel],
+  .field select,
+  .field textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 9px 11px;
+    font: inherit;
+    color: var(--ink);
+    background: #fff;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--ink-2);
+    box-shadow: 0 0 0 3px rgba(50,32,26,0.10);
+  }
+  .field textarea { min-height: 80px; resize: vertical; }
+  .check-list { display: grid; gap: 8px; }
+  .check {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    font-size: 13px;
+  }
+  .check:hover { border-color: var(--accent); }
+  .check input { margin-top: 2px; }
+  .check.selected { background: var(--rose); border-color: var(--ink-2); }
+  .check .meta { color: var(--muted); margin-left: auto; font-size: 12px; flex-shrink: 0; }
+  .check .addon-body { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+  .check .addon-body .scope { color: var(--muted); font-size: 11px; line-height: 1.4; margin-top: 3px; }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { .row-2 { grid-template-columns: 1fr; } }
+
+  .radio-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .radio-row label {
+    flex: 1 1 calc(50% - 4px);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 9px 12px;
+    cursor: pointer;
+    background: #fff;
+    font-size: 13px;
+    transition: border-color .15s, background .15s;
+  }
+  .radio-row label.selected { border-color: var(--ink-2); background: var(--rose); }
+  .radio-row input { margin-right: 6px; }
+
+  /* Quote */
+  .quote {
+    position: sticky;
+    top: 16px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .quote .quote-head {
+    background: var(--ink-2);
+    color: #fff;
+    padding: 14px 18px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .quote .quote-head .pill {
+    background: rgba(255,255,255,0.16);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+  .quote-body { padding: 16px 18px; }
+  .quote-section-label {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    font-weight: 700;
+    margin: 14px 0 6px;
+    text-transform: uppercase;
+  }
+  .quote-section-label.first { margin-top: 0; }
+  .qline {
+    display: flex;
+    justify-content: space-between;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .qline:last-child { border-bottom: none; }
+  .qline.subtotal {
+    background: var(--rose);
+    margin: 8px -18px 0;
+    padding: 10px 18px;
+    font-weight: 700;
+    color: var(--ink-2);
+  }
+  .qline.total {
+    background: var(--ink-2);
+    color: #fff;
+    margin: 8px -18px 0;
+    padding: 14px 18px;
+    font-weight: 700;
+    font-size: 15px;
+    border-bottom: none;
+  }
+  .qline.muted { color: var(--muted); font-size: 12px; }
+  .revenue-check {
+    background: var(--rose);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .revenue-check b { font-size: 18px; display: inline-block; margin-right: 6px; }
+  .revenue-check .band { color: var(--muted); display: block; margin-top: 4px; }
+
+  /* Quote form */
+  .send-block {
+    background: var(--ink-2);
+    color: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 24px;
+  }
+  .send-block h2 { color: #fff; margin-top: 0; }
+  .send-block p { opacity: 0.92; margin-bottom: 18px; }
+  .send-block .panel-inner {
+    background: #fff;
+    color: var(--ink);
+    border-radius: 10px;
+    padding: 22px;
+  }
+  .btn {
+    display: inline-block;
+    background: var(--ink-2);
+    color: #fff;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 8px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background .15s, transform .05s;
+  }
+  .btn:hover { background: #4a2f26; }
+  .btn:active { transform: translateY(1px); }
+  .btn.secondary { background: #fff; color: var(--ink-2); border: 1px solid var(--line); }
+  .btn.secondary:hover { background: var(--rose); }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+
+  /* Sources */
+  .sources {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 22px;
+    margin-top: 28px;
+  }
+  .sources h3 {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    margin: 0 0 12px;
+    color: var(--ink-2);
+    text-transform: uppercase;
+  }
+  .sources ul { margin: 0; padding-left: 18px; column-count: 2; column-gap: 28px; }
+  @media (max-width: 700px) { .sources ul { column-count: 1; } }
+  .sources li { font-size: 12px; margin-bottom: 6px; break-inside: avoid; }
+  .sources a { color: var(--ink-2); text-decoration: underline; }
+  footer.fine {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 28px;
+    line-height: 1.6;
+  }
+  footer.fine a { color: var(--ink-2); }
+  .promo-applied {
+    color: #1f6f3f;
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 700;
+  }
+  .promo-invalid { color: #a23a2c; font-size: 12px; margin-top: 6px; }
+
+  @media print {
+    body { background: #fff; }
+    .send-block, .btn-row, .sources { display: none; }
+    .quote { position: static; }
+    header.hero { background: #fff; color: var(--ink); }
+    header.hero h1, header.hero p { color: var(--ink); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="logo-block">
+    <img src="peak-bookkeeping-logo.png" alt="Peak Bookkeeping">
+  </div>
+  <div class="titles">
+    <h1>Pricing Calculator</h1>
+    <p>Industry-benchmarked monthly pricing tailored to your business. Adjust the inputs to see your customized quote, then send it to me for a personal proposal.</p>
+  </div>
+</header>
+
+<!-- TIER CARDS -->
+<div class="tiers" id="tierCards">
+  <div class="tier" data-tier="starter">
+    <div class="tier-name">STARTER</div>
+    <div class="tier-price">$149<small>/mo</small></div>
+    <div class="tier-blurb">For very small / side-hustle businesses — flat monthly.</div>
+    <ul>
+      <li>Up to 30 monthly transactions</li>
+      <li>1 bank account reconciled</li>
+      <li>Quarterly P&amp;L + Balance Sheet</li>
+      <li>Categorization &amp; coding</li>
+    </ul>
+    <div class="tier-note" data-tier-note></div>
+    <div class="badges">
+      <span class="badge recommended-badge">Recommended</span>
+      <span class="badge selected-badge">Selected</span>
+    </div>
+  </div>
+  <div class="tier" data-tier="essentials">
+    <div class="tier-name">ESSENTIALS</div>
+    <div class="tier-price">$249<small>/mo</small></div>
+    <div class="tier-blurb">For solopreneurs and micro-businesses with simple operations.</div>
+    <ul>
+      <li>Up to 100 monthly transactions</li>
+      <li>Up to 2 accounts reconciled</li>
+      <li>Monthly P&amp;L + Balance Sheet</li>
+      <li>Categorization &amp; coding</li>
+    </ul>
+    <div class="tier-note" data-tier-note></div>
+    <div class="badges">
+      <span class="badge recommended-badge">Recommended</span>
+      <span class="badge selected-badge">Selected</span>
+    </div>
+  </div>
+  <div class="tier" data-tier="growth">
+    <div class="tier-name">GROWTH</div>
+    <div class="tier-price">$479<small>/mo</small></div>
+    <div class="tier-blurb">For growing small businesses with more complex books.</div>
+    <ul>
+      <li>Up to 300 monthly transactions</li>
+      <li>Up to 4 accounts reconciled</li>
+      <li>Everything in Essentials</li>
+      <li>Cash flow statement</li>
+      <li>Email support for ad-hoc questions</li>
+    </ul>
+    <div class="tier-note" data-tier-note></div>
+    <div class="badges">
+      <span class="badge recommended-badge">Recommended</span>
+      <span class="badge selected-badge">Selected</span>
+    </div>
+  </div>
+  <div class="tier" data-tier="premium">
+    <div class="tier-name">PREMIUM</div>
+    <div class="tier-price">$749<small>/mo</small></div>
+    <div class="tier-blurb">For established SMBs that want weekly cadence and faster turnaround on bookkeeping questions.</div>
+    <ul>
+      <li>Up to 600 monthly transactions</li>
+      <li>Up to 6 accounts reconciled</li>
+      <li>Everything in Growth</li>
+      <li>Weekly bookkeeping cadence (books current within 7 days)</li>
+    </ul>
+    <div class="tier-note" data-tier-note></div>
+    <div class="badges">
+      <span class="badge recommended-badge">Recommended</span>
+      <span class="badge selected-badge">Selected</span>
+    </div>
+  </div>
+  <div class="tier" data-tier="scale">
+    <div class="tier-name">SCALE</div>
+    <div class="tier-price">$1,499<small>/mo</small></div>
+    <div class="tier-blurb">For high-volume SMBs with multiple entities or heavy operations.</div>
+    <ul>
+      <li>Up to 1,000 monthly transactions</li>
+      <li>Up to 8 accounts reconciled</li>
+      <li>Everything in Premium</li>
+      <li>Multi-entity / consolidation</li>
+      <li>Standing monthly 30-min Zoom check-in (you book the slot)</li>
+    </ul>
+    <div class="tier-note" data-tier-note></div>
+    <div class="badges">
+      <span class="badge recommended-badge">Recommended</span>
+      <span class="badge selected-badge">Selected</span>
+    </div>
+  </div>
+</div>
+<div class="tier-overrride-banner" id="tierOverrideBanner">
+  You've manually selected <b id="overrideName"></b>. Based on your inputs we recommend <b id="recommendedName"></b> — <a id="useRecommended">use the recommendation</a>.
+</div>
+
+<!-- INPUTS + QUOTE -->
+<div class="grid">
+  <div class="inputs">
+
+    <div class="panel">
+      <h2>Your Business</h2>
+      <div class="field">
+        <label class="lbl" for="clientName">Client / Prospect name</label>
+        <input type="text" id="clientName" placeholder="Sample Client LLC">
+      </div>
+      <div class="field">
+        <label class="lbl" for="industry">Industry</label>
+        <select id="industry">
+          <option value="1.00">Service / Consulting / Professional</option>
+          <option value="1.10">Real Estate / Agency</option>
+          <option value="1.20">Nonprofit (grant tracking)</option>
+          <option value="1.25">Trades / Construction (WIP)</option>
+          <option value="1.20">Restaurant / Hospitality</option>
+          <option value="1.25">Retail (POS / inventory / sales tax)</option>
+          <option value="1.30">E-commerce (multi-channel / inventory)</option>
+        </select>
+        <div class="hint">Complexity multiplier applied to the bookkeeping base.</div>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label class="lbl" for="txns">Monthly transactions</label>
+          <input type="number" id="txns" min="0" step="10" value="180">
+          <div class="hint">Bank + credit card line items per month.</div>
+        </div>
+        <div class="field">
+          <label class="lbl" for="accounts">Number of financial accounts</label>
+          <input type="number" id="accounts" min="1" step="1" value="3">
+          <div class="hint">Checking, savings, credit cards, loans, merchant accounts.</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl" for="revenue">Client annual revenue ($)</label>
+        <input type="number" id="revenue" min="0" step="1000" value="500000">
+        <div class="hint">Used to sanity-check fees against the 1–3% industry norm.</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Add-ons</h2>
+      <div class="check-list">
+        <label class="check">
+          <input type="checkbox" id="ar">
+          <span class="addon-body">
+            <span><b>A/R management</b></span>
+            <span class="scope">Invoicing, payment recording, A/R aging, and automated weekly reminders on overdue invoices sent from your business email. Phone calls, personal collection emails, and hard collections (collection agency, legal action) are out of scope — accounts past 30 days are flagged on the aging report and kicked back to you.</span>
+          </span>
+          <span class="meta">+$95</span>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="ap">
+          <span class="addon-body">
+            <span><b>A/P / Bill pay</b></span>
+            <span class="scope">Bill entry &amp; coding, A/P aging, and scheduling approved payments through QuickBooks Online Bill Pay (powered by Melio) — funded entirely from your business bank and run only after your explicit approval. Other bill-pay platforms (Bill.com, Ramp), vendor negotiation, and new-vendor onboarding are out of scope.</span>
+          </span>
+          <span class="meta">+$140</span>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="inventory">
+          <span class="addon-body">
+            <span><b>Inventory tracking</b></span>
+            <span class="scope">Inventory module setup &amp; ongoing reconciliation in QBO/Xero, COGS journal entries, and SKU-level reporting. Physical counts and warehouse audits are not included.</span>
+          </span>
+          <span class="meta">+$160</span>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="classloc">
+          <span class="addon-body">
+            <span><b>Class / Location tracking</b></span>
+            <span class="scope">Tagging transactions by class, department, project, or location so P&amp;L can be sliced by segment. Includes setup of the tagging structure.</span>
+          </span>
+          <span class="meta">+$80</span>
+        </label>
+      </div>
+      <div class="field" style="margin-top:14px">
+        <label class="lbl" for="taxJur">Sales tax jurisdictions ($60 each)</label>
+        <input type="number" id="taxJur" min="0" step="1" value="0">
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Payroll</h2>
+      <div class="check-list">
+        <label class="check">
+          <input type="checkbox" id="payroll">
+          <span class="addon-body">
+            <span><b>Payroll oversight (through Gusto)</b></span>
+            <span class="scope">Setup, run review, reconciliation to QBO, and year-end W-2/1099 review through Gusto. Hour entry stays with the client through Gusto's admin. Gusto's subscription is billed separately by Gusto (typically ~$40–$80 base + $6–$12/employee/mo depending on the tier you need — picked at onboarding).</span>
+          </span>
+          <span class="meta">$60 base + $10 / employee</span>
+        </label>
+      </div>
+      <div class="row-2" style="margin-top:14px">
+        <div class="field">
+          <label class="lbl" for="employees">Employee count</label>
+          <input type="number" id="employees" min="0" step="1" value="0">
+        </div>
+        <div class="field">
+          <label class="lbl">Pay frequency</label>
+          <div class="radio-row" id="freqRow">
+            <label class="selected"><input type="radio" name="freq" value="monthly" checked> Monthly</label>
+            <label><input type="radio" name="freq" value="semimonthly"> Semi-monthly (+10%)</label>
+            <label><input type="radio" name="freq" value="biweekly"> Bi-weekly (+15%)</label>
+          </div>
+        </div>
+      </div>
+      <div class="field" style="margin-top:14px">
+        <label class="lbl">Payroll software</label>
+        <div class="radio-row" id="providerRow">
+          <label class="selected"><input type="radio" name="provider" value="gusto" checked> Gusto (my standard)</label>
+          <label><input type="radio" name="provider" value="other"> Other provider (+$50/mo)</label>
+        </div>
+        <div class="hint">I work most efficiently in Gusto. Clients who stay on another provider (Bench, ADP, Paychex, OnPay, Patriot, etc.) carry a flat $50/mo surcharge to cover the extra configuration and reconciliation time. Switching is also an option — I charge a one-time payroll migration fee of $300–$500 separately.</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Advisory / CFO <span style="font-weight:400;color:var(--muted);font-size:11px;letter-spacing:1px">(non-tax)</span></h2>
+      <div class="field">
+        <label class="lbl">Advisory tier</label>
+        <div class="radio-row" id="advisoryRow" style="flex-direction:column">
+          <label class="selected"><input type="radio" name="advisory" value="0" checked> None</label>
+          <label><input type="radio" name="advisory" value="495"> Light — quarterly review + KPI dashboard ($495/mo)</label>
+          <label><input type="radio" name="advisory" value="1295"> Standard — monthly review + cash flow forecasting ($1,295/mo)</label>
+          <label><input type="radio" name="advisory" value="3500"> Fractional CFO — full strategic partner, non-tax ($3,500/mo)</label>
+        </div>
+      </div>
+      <div class="hint">Covers cash flow, KPIs, and operating decisions. Tax planning, return prep, and tax advice are referred to the client's CPA.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Cleanup / Catch-up</h2>
+      <div class="field">
+        <label class="lbl" for="cleanupMonths">Months of cleanup needed</label>
+        <input type="number" id="cleanupMonths" min="0" step="1" value="0">
+        <div class="hint">Priced at monthly rate × months × 0.85 (project discount), $600 minimum.</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Promo / Referral Code</h2>
+      <div class="field">
+        <label class="lbl" for="promo">Have a code? Enter it here</label>
+        <input type="text" id="promo" placeholder="Enter code">
+        <div class="hint">If you were given a code by Madison, enter it to apply your discount to all fees.</div>
+        <div id="promoStatus"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- QUOTE -->
+  <div>
+    <div class="quote" id="quote">
+      <div class="quote-head">
+        <span>Your Quote</span>
+        <span class="pill" id="tierPill">Growth</span>
+      </div>
+      <div class="quote-body">
+
+        <div class="quote-section-label first">Monthly Bookkeeping</div>
+        <div class="qline"><span>Base package rate</span><span id="basePrice">$479</span></div>
+        <div class="qline"><span>Extra transactions</span><span id="extraTxnsLine">$0</span></div>
+        <div class="qline"><span>Extra accounts</span><span id="extraAcctsLine">$0</span></div>
+        <div class="qline"><span>Industry multiplier</span><span id="industryMult">1.00×</span></div>
+        <div class="qline subtotal"><span>Bookkeeping subtotal</span><span id="bkSubtotal">$479</span></div>
+
+        <div class="quote-section-label">Add-ons</div>
+        <div id="addonContainer">
+          <div class="qline"><span>None selected</span><span>$0</span></div>
+        </div>
+
+        <div class="quote-section-label">Payroll</div>
+        <div class="qline"><span>Payroll service</span><span id="payrollLine">$0</span></div>
+
+        <div class="quote-section-label">Advisory</div>
+        <div class="qline"><span id="advisoryLabel">None</span><span id="advisoryLine">$0</span></div>
+
+        <div class="qline" id="promoMonthlyLine" style="display:none"><span>Promo discount</span><span id="promoMonthly">$0</span></div>
+
+        <div class="qline total"><span>Monthly recurring total</span><span id="monthlyTotal">$479</span></div>
+
+        <div class="quote-section-label">One-Time Fees</div>
+        <div class="qline"><span>Onboarding / setup</span><span id="onboardLine">$240</span></div>
+        <div class="qline" id="cleanupLineWrap" style="display:none"><span id="cleanupLabel">Cleanup / catch-up</span><span id="cleanupLine">$0</span></div>
+        <div class="qline" id="promoOnetimeLine" style="display:none"><span>Promo discount (one-time)</span><span id="promoOnetime">$0</span></div>
+        <div class="qline subtotal"><span>One-time total</span><span id="onetimeTotal">$240</span></div>
+
+        <div class="qline total"><span>First-month invoice</span><span id="firstMonth">$719</span></div>
+
+        <div class="revenue-check">
+          <span>Annual fees vs. client revenue</span><br>
+          <b id="revenuePct">1.2%</b>
+          <span class="band">Bookkeeping industry guides (Karbon, Ignition, Relay) cite 1%–3% of revenue as a healthy band for small businesses.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn secondary" onclick="window.print()">Print / Save PDF</button>
+      <button class="btn secondary" onclick="resetAll()">Reset inputs</button>
+      <button class="btn secondary" id="shareBtn" onclick="copyShareLink()">Copy shareable link</button>
+    </div>
+  </div>
+</div>
+
+<!-- SEND QUOTE -->
+<div class="send-block">
+  <h2>Have Madison Personally Review Your Quote</h2>
+  <p>Send your inputs my way and within three business days I'll personally review your quote and follow up with: a tailored proposal that reflects your real scope, answers to any questions or concerns, and — if the number feels off — options for adjusting it. Whether you love the price or want to talk it through, this is the easiest way to start the conversation. No obligation either way.</p>
+  <div class="panel-inner">
+    <div class="row-2">
+      <div class="field">
+        <label class="lbl" for="contactName">Your name *</label>
+        <input type="text" id="contactName" required>
+      </div>
+      <div class="field">
+        <label class="lbl" for="contactBiz">Business name</label>
+        <input type="text" id="contactBiz">
+      </div>
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label class="lbl" for="contactEmail">Email *</label>
+        <input type="email" id="contactEmail" required>
+      </div>
+      <div class="field">
+        <label class="lbl" for="contactPhone" id="contactPhoneLabel">Phone</label>
+        <input type="tel" id="contactPhone">
+      </div>
+    </div>
+    <div class="field">
+      <label class="lbl">Preferred contact method</label>
+      <div class="radio-row" id="contactRow">
+        <label class="selected"><input type="radio" name="cmethod" value="Email" checked> Email</label>
+        <label><input type="radio" name="cmethod" value="Phone call"> Phone call</label>
+        <label><input type="radio" name="cmethod" value="Text message"> Text message</label>
+      </div>
+    </div>
+    <div class="field">
+      <label class="lbl">When do you want to start?</label>
+      <div class="radio-row" id="startRow" style="flex-direction:column">
+        <label class="selected"><input type="radio" name="start" value="ASAP" checked> As soon as possible</label>
+        <label><input type="radio" name="start" value="Within 30 days"> Within 30 days</label>
+        <label><input type="radio" name="start" value="1–3 months out"> 1–3 months out</label>
+        <label><input type="radio" name="start" value="Just exploring"> Just exploring</label>
+      </div>
+    </div>
+    <div class="field">
+      <label class="lbl" for="notes">Anything else I should know? (optional)</label>
+      <textarea id="notes"></textarea>
+    </div>
+    <button class="btn" onclick="sendQuote()">Send my quote →</button>
+    <div class="hint" style="margin-top:10px;color:rgba(100,79,70,0.85)">No obligation. I'll respond within three business days.</div>
+  </div>
+</div>
+
+<!-- SOURCES -->
+<div class="sources">
+  <h3>Industry sources used to benchmark these rates</h3>
+  <ul>
+    <li><a href="https://karbonhq.com/resources/bookkeeping-services-pricing-guide/" target="_blank" rel="noopener">Karbon — Bookkeeping services pricing guide</a></li>
+    <li><a href="https://www.ignitionapp.com/blog/the-ultimate-pricing-strategy-guide-for-accountants-and-bookkeepers" target="_blank" rel="noopener">Ignition — Pricing strategy guide for accountants and bookkeepers</a></li>
+    <li><a href="https://quickbooks.intuit.com/r/bookkeeping/how-much-does-a-bookkeeper-cost/" target="_blank" rel="noopener">Intuit QuickBooks — How much does a bookkeeper cost in 2026</a></li>
+    <li><a href="https://quickbooks.intuit.com/r/payroll/cost-of-payroll/" target="_blank" rel="noopener">Intuit QuickBooks — Cost of payroll: 2026 small business guide</a></li>
+    <li><a href="https://relayfi.com/blog/how-much-to-charge-bookkeeping-services-2026/" target="_blank" rel="noopener">Relay Financial — Bookkeeping pricing guide 2026</a></li>
+    <li><a href="https://relayfi.com/blog/pricing-small-business-bookkeeping-services" target="_blank" rel="noopener">Relay Financial — How to price small business bookkeeping services</a></li>
+    <li><a href="https://www.debits.com/how-to-price-bookkeeping-services-2026/" target="_blank" rel="noopener">Debits — How to price bookkeeping services in 2026</a></li>
+    <li><a href="https://www.slateridgefinance.com/blog/monthly-bookkeeping-packages-ultimate-guide" target="_blank" rel="noopener">Slateridge Finance — Monthly bookkeeping packages guide</a></li>
+    <li><a href="https://pilot.com/pricing" target="_blank" rel="noopener">Pilot — Published pricing benchmark</a></li>
+    <li><a href="https://www.remotebooksonline.com/blog/bookkeeping-clean-up-pricing" target="_blank" rel="noopener">Remote Books Online — Bookkeeping cleanup pricing</a></li>
+    <li><a href="https://www.monacocpa.cpa/post/bookkeeping-cleanup-cost-small-business-2026" target="_blank" rel="noopener">Monaco CPA — Bookkeeping cleanup cost in 2026</a></li>
+    <li><a href="https://stephsbooks.com/blog/catch-up-bookkeeping-guide" target="_blank" rel="noopener">Steph's Books — Catch-up bookkeeping guide 2026</a></li>
+    <li><a href="https://taxdome.com/blog/the-average-cost-of-payroll-services-a-comprehensive-guide" target="_blank" rel="noopener">TaxDome — Cost of payroll services 2026</a></li>
+    <li><a href="https://5minutebookkeeping.com/charging-for-quickbooks-online-cleanup-fixed-fee-or-by-the-hour/" target="_blank" rel="noopener">5 Minute Bookkeeping — Charging for QBO cleanup</a></li>
+    <li><a href="https://www.valuepricingacademy.com/blog/pricing_clean_up_work" target="_blank" rel="noopener">Value Pricing Academy — 4 ways to price clean-up work</a></li>
+    <li><a href="https://www.checkthelevel.com/post/what-should-bookkeepers-charge-per-transaction-a-guide-to-tiered-pricing-based-on-volume" target="_blank" rel="noopener">Check the Level — What bookkeepers should charge per transaction</a></li>
+    <li><a href="https://preferredcfo.com/insights/how-much-does-a-fractional-cfo-cost" target="_blank" rel="noopener">Preferred CFO — Fractional CFO cost</a></li>
+    <li><a href="https://theexpertcfo.com/fractional-cfo-rates/" target="_blank" rel="noopener">The Expert CFO — Fractional CFO rates</a></li>
+    <li><a href="https://www.nerdwallet.com/business/software/learn/bookkeeping-pricing" target="_blank" rel="noopener">NerdWallet — Bookkeeping prices for small business</a></li>
+  </ul>
+</div>
+
+<footer class="fine">
+  <div>Pricing benchmarks reflect 2025–2026 industry norms. Calculator is a starting point — adjust for client-specific scope.</div>
+  <div style="margin-top:6px">Scope note: Financial review and strategy calls cover bookkeeping, cash flow, KPIs, and operating decisions — <b>not</b> tax planning, return preparation, or tax advice. Tax-specific items are referred to the client's CPA.</div>
+  <div style="margin-top:10px">© Peak Bookkeeping · <a href="mailto:madison@peak-bk.com">madison@peak-bk.com</a></div>
+</footer>
+
+</div>
+
+<script>
+// --- DATA ---
+const TIERS = [
+  { id:'starter',    name:'Starter',    price:149,  txns:30,   accts:1, onboarding:120 },
+  { id:'essentials', name:'Essentials', price:249,  txns:100,  accts:2, onboarding:180 },
+  { id:'growth',     name:'Growth',     price:479,  txns:300,  accts:4, onboarding:240 },
+  { id:'premium',    name:'Premium',    price:749,  txns:600,  accts:6, onboarding:395 },
+  { id:'scale',      name:'Scale',      price:1499, txns:1000, accts:8, onboarding:595 }
+];
+const EXTRA_TXN_RATE = 0.75;   // per extra txn over Scale's cap
+const EXTRA_ACCT_RATE = 30;    // per extra account over Scale's cap
+const ADDONS = {
+  ar: { label:'A/R management', amount:95 },
+  ap: { label:'A/P / Bill pay', amount:140 },
+  inventory: { label:'Inventory tracking', amount:160 },
+  classloc: { label:'Class / Location tracking', amount:80 }
+};
+const TAX_JUR_RATE = 60;
+const PAYROLL_BASE = 60;
+const PAYROLL_PER_EMP = 10;
+const SEMIMONTHLY_MULT = 1.10;
+const BIWEEKLY_MULT = 1.15;
+const NON_GUSTO_SURCHARGE = 50;
+const CLEANUP_DISCOUNT = 0.85;
+const CLEANUP_MIN = 600;
+
+const PROMO_CODES = {
+  'FRIENDS20': { rate: 0.20, label: '20% off — friends & family (FRIENDS20)' },
+  'FAMILY20':  { rate: 0.20, label: '20% off — friends & family (FAMILY20)' },
+  'NETWORK15': { rate: 0.15, label: '15% off — networking group (NETWORK15)' }
+};
+
+// --- HELPERS ---
+const $ = id => document.getElementById(id);
+const fmt = n => '$' + Math.round(n).toLocaleString();
+const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+
+function pickTier(txns, accts) {
+  for (const t of TIERS) {
+    if (txns <= t.txns && accts <= t.accts) return t;
+  }
+  return TIERS[TIERS.length - 1];
+}
+
+// Manual tier override — null means "use the recommendation"
+let manualTierId = null;
+
+function getAdvisory() {
+  const r = document.querySelector('input[name="advisory"]:checked');
+  const labels = {
+    '0':'None',
+    '495':'Light advisory',
+    '1295':'Standard advisory',
+    '3500':'Fractional CFO'
+  };
+  return { value: parseFloat(r.value), label: labels[r.value] };
+}
+
+// --- CORE CALC ---
+function calc() {
+  const txns = Math.max(0, parseInt($('txns').value) || 0);
+  const accts = Math.max(1, parseInt($('accounts').value) || 1);
+  const revenue = Math.max(0, parseFloat($('revenue').value) || 0);
+  const industryMult = parseFloat($('industry').value);
+  const recommendedTier = pickTier(txns, accts);
+  const tier = manualTierId
+    ? (TIERS.find(t => t.id === manualTierId) || recommendedTier)
+    : recommendedTier;
+
+  // Highlight tier cards (active = currently chosen, recommended = auto-pick)
+  document.querySelectorAll('.tier').forEach(c => {
+    const cTier = TIERS.find(t => t.id === c.dataset.tier);
+    c.classList.toggle('active', c.dataset.tier === tier.id);
+    c.classList.toggle('recommended', c.dataset.tier === recommendedTier.id);
+
+    // Per-tier note: overage cost or capacity note vs current inputs
+    const noteEl = c.querySelector('[data-tier-note]');
+    if (noteEl && cTier) {
+      const eTxns = Math.max(0, txns - cTier.txns);
+      const eAccts = Math.max(0, accts - cTier.accts);
+      const eCost = eTxns * EXTRA_TXN_RATE + eAccts * EXTRA_ACCT_RATE;
+      if (cTier.id === recommendedTier.id) {
+        noteEl.textContent = 'Best fit for your inputs';
+      } else if (eCost > 0) {
+        noteEl.textContent = '+ ' + fmt(eCost) + '/mo overage at this tier';
+      } else {
+        noteEl.textContent = 'Includes spare capacity';
+      }
+    }
+  });
+  $('tierPill').textContent = tier.name;
+
+  // Override banner — only show when the user has chosen a tier ≠ the recommendation
+  const banner = $('tierOverrideBanner');
+  if (manualTierId && manualTierId !== recommendedTier.id) {
+    $('overrideName').textContent = tier.name;
+    $('recommendedName').textContent = recommendedTier.name;
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+
+  // Extra usage charges (only kick in over Scale's caps)
+  const extraTxns = Math.max(0, txns - tier.txns);
+  const extraAccts = Math.max(0, accts - tier.accts);
+  const extraTxnCost = extraTxns * EXTRA_TXN_RATE;
+  const extraAcctCost = extraAccts * EXTRA_ACCT_RATE;
+
+  const baseAdjusted = (tier.price + extraTxnCost + extraAcctCost) * industryMult;
+  $('basePrice').textContent = fmt(tier.price);
+  $('extraTxnsLine').textContent = fmt(extraTxnCost);
+  $('extraAcctsLine').textContent = fmt(extraAcctCost);
+  $('industryMult').textContent = industryMult.toFixed(2) + '×';
+  $('bkSubtotal').textContent = fmt(baseAdjusted);
+
+  // Add-ons
+  let addonsTotal = 0;
+  const addonRows = [];
+  Object.keys(ADDONS).forEach(k => {
+    if ($(k).checked) {
+      addonsTotal += ADDONS[k].amount;
+      addonRows.push({ label: ADDONS[k].label, amount: ADDONS[k].amount });
+    }
+  });
+  const taxJur = Math.max(0, parseInt($('taxJur').value) || 0);
+  if (taxJur > 0) {
+    const taxCost = taxJur * TAX_JUR_RATE;
+    addonsTotal += taxCost;
+    addonRows.push({ label: `Sales tax — ${taxJur} jurisdiction${taxJur===1?'':'s'}`, amount: taxCost });
+  }
+  const addonContainer = $('addonContainer');
+  if (addonRows.length) {
+    addonContainer.innerHTML = addonRows
+      .map(r => `<div class="qline"><span>${escapeHtml(r.label)}</span><span>${fmt(r.amount)}</span></div>`)
+      .join('');
+  } else {
+    addonContainer.innerHTML = `<div class="qline"><span>None selected</span><span>$0</span></div>`;
+  }
+
+  // Payroll
+  let payrollCost = 0;
+  if ($('payroll').checked) {
+    const emp = Math.max(0, parseInt($('employees').value) || 0);
+    payrollCost = PAYROLL_BASE + emp * PAYROLL_PER_EMP;
+    const freq = document.querySelector('input[name="freq"]:checked').value;
+    if (freq === 'semimonthly') payrollCost *= SEMIMONTHLY_MULT;
+    else if (freq === 'biweekly') payrollCost *= BIWEEKLY_MULT;
+    const provider = document.querySelector('input[name="provider"]:checked');
+    if (provider && provider.value === 'other') payrollCost += NON_GUSTO_SURCHARGE;
+  }
+  $('payrollLine').textContent = fmt(payrollCost);
+
+  // Advisory
+  const adv = getAdvisory();
+  $('advisoryLabel').textContent = adv.label;
+  $('advisoryLine').textContent = fmt(adv.value);
+
+  // Promo
+  const promo = ($('promo').value || '').trim().toUpperCase();
+  let promoRate = 0;
+  const promoStatusEl = $('promoStatus');
+  if (promo === '') {
+    promoStatusEl.innerHTML = '';
+  } else if (PROMO_CODES[promo]) {
+    promoRate = PROMO_CODES[promo].rate;
+    promoStatusEl.innerHTML = `<div class="promo-applied">✓ Applied: ${escapeHtml(PROMO_CODES[promo].label)}</div>`;
+  } else {
+    promoStatusEl.innerHTML = `<div class="promo-invalid">Code not recognized — ask Madison if you think it should work.</div>`;
+  }
+
+  // Monthly total before discount
+  const monthlyPreDiscount = baseAdjusted + addonsTotal + payrollCost + adv.value;
+  const promoMonthly = monthlyPreDiscount * promoRate;
+  if (promoRate > 0) {
+    $('promoMonthlyLine').style.display = 'flex';
+    $('promoMonthly').textContent = '−' + fmt(promoMonthly);
+  } else {
+    $('promoMonthlyLine').style.display = 'none';
+  }
+  const monthlyTotal = monthlyPreDiscount - promoMonthly;
+  $('monthlyTotal').textContent = fmt(monthlyTotal);
+
+  // One-time
+  const onboarding = tier.onboarding;
+  $('onboardLine').textContent = fmt(onboarding);
+  let cleanup = 0;
+  const cleanupMonths = Math.max(0, parseInt($('cleanupMonths').value) || 0);
+  if (cleanupMonths > 0) {
+    cleanup = Math.max(CLEANUP_MIN, baseAdjusted * cleanupMonths * CLEANUP_DISCOUNT);
+    $('cleanupLineWrap').style.display = 'flex';
+    $('cleanupLabel').textContent = `Cleanup / catch-up (${cleanupMonths} mo)`;
+    $('cleanupLine').textContent = fmt(cleanup);
+  } else {
+    $('cleanupLineWrap').style.display = 'none';
+  }
+  const onetimePre = onboarding + cleanup;
+  const promoOnetime = onetimePre * promoRate;
+  if (promoRate > 0 && onetimePre > 0) {
+    $('promoOnetimeLine').style.display = 'flex';
+    $('promoOnetime').textContent = '−' + fmt(promoOnetime);
+  } else {
+    $('promoOnetimeLine').style.display = 'none';
+  }
+  const onetimeTotal = onetimePre - promoOnetime;
+  $('onetimeTotal').textContent = fmt(onetimeTotal);
+  $('firstMonth').textContent = fmt(monthlyTotal + onetimeTotal);
+
+  // Annual fees vs revenue
+  if (revenue > 0) {
+    const pct = (monthlyTotal * 12 / revenue) * 100;
+    $('revenuePct').textContent = pct.toFixed(2) + '%';
+  } else {
+    $('revenuePct').textContent = '—';
+  }
+}
+
+// --- UI WIRING ---
+function wireRadios(rowId) {
+  const row = document.getElementById(rowId);
+  if (!row) return;
+  row.querySelectorAll('label').forEach(l => {
+    l.addEventListener('click', () => {
+      setTimeout(() => {
+        row.querySelectorAll('label').forEach(x => {
+          const input = x.querySelector('input[type="radio"]');
+          x.classList.toggle('selected', input && input.checked);
+        });
+        calc();
+      }, 0);
+    });
+  });
+}
+function wireChecks() {
+  document.querySelectorAll('.check').forEach(l => {
+    const cb = l.querySelector('input[type="checkbox"]');
+    if (!cb) return;
+    const sync = () => l.classList.toggle('selected', cb.checked);
+    cb.addEventListener('change', sync);
+    sync();
+  });
+}
+function wireTierCards() {
+  document.querySelectorAll('.tier').forEach(card => {
+    card.addEventListener('click', () => {
+      manualTierId = card.dataset.tier;
+      calc();
+    });
+  });
+  const useRec = $('useRecommended');
+  if (useRec) {
+    useRec.addEventListener('click', (e) => {
+      e.preventDefault();
+      manualTierId = null;
+      calc();
+    });
+  }
+}
+function updatePhoneRequired() {
+  const cmethod = (document.querySelector('input[name="cmethod"]:checked')||{}).value || 'Email';
+  const phoneLabel = document.getElementById('contactPhoneLabel');
+  const phoneInput = document.getElementById('contactPhone');
+  if (!phoneLabel || !phoneInput) return;
+  const isRequired = (cmethod === 'Phone call' || cmethod === 'Text message');
+  phoneLabel.textContent = isRequired ? 'Phone *' : 'Phone';
+  phoneInput.required = isRequired;
+}
+
+function wireAll() {
+  wireRadios('freqRow');
+  wireRadios('providerRow');
+  wireRadios('advisoryRow');
+  wireRadios('contactRow');
+  wireRadios('startRow');
+  wireChecks();
+  wireTierCards();
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input', calc);
+    el.addEventListener('change', calc);
+  });
+  document.querySelectorAll('input[name="cmethod"]').forEach(r => {
+    r.addEventListener('change', updatePhoneRequired);
+  });
+  updatePhoneRequired();
+}
+
+function resetAll() {
+  manualTierId = null;
+  $('clientName').value = 'Sample Client LLC';
+  $('industry').selectedIndex = 0;
+  $('txns').value = 180;
+  $('accounts').value = 3;
+  $('revenue').value = 500000;
+  ['ar','ap','inventory','classloc','payroll'].forEach(id => $(id).checked = false);
+  $('taxJur').value = 0;
+  $('employees').value = 0;
+  $('cleanupMonths').value = 0;
+  $('promo').value = '';
+  document.querySelector('input[name="freq"][value="monthly"]').checked = true;
+  document.querySelector('input[name="advisory"][value="0"]').checked = true;
+  document.querySelectorAll('#freqRow label').forEach((l,i) => l.classList.toggle('selected', i===0));
+  document.querySelectorAll('#advisoryRow label').forEach((l,i) => l.classList.toggle('selected', i===0));
+  document.querySelectorAll('.check').forEach(l => l.classList.remove('selected'));
+  calc();
+}
+
+function sendQuote() {
+  const name = $('contactName').value.trim();
+  const email = $('contactEmail').value.trim();
+  if (!name || !email) {
+    alert('Please fill in your name and email so I can follow up.');
+    return;
+  }
+  const cmethod = (document.querySelector('input[name="cmethod"]:checked')||{}).value || 'Email';
+  if ((cmethod === 'Phone call' || cmethod === 'Text message') && !$('contactPhone').value.trim()) {
+    alert('Please add a phone number since you selected ' + cmethod + ' as your preferred contact method.');
+    $('contactPhone').focus();
+    return;
+  }
+  const start = (document.querySelector('input[name="start"]:checked')||{}).value || '';
+  const lines = [
+    `Name: ${name}`,
+    `Business: ${$('contactBiz').value}`,
+    `Email: ${email}`,
+    `Phone: ${$('contactPhone').value}`,
+    `Preferred contact: ${cmethod}`,
+    `Start timing: ${start}`,
+    ``,
+    `--- QUOTE INPUTS ---`,
+    `Client / prospect: ${$('clientName').value}`,
+    `Industry: ${$('industry').options[$('industry').selectedIndex].text}`,
+    `Monthly transactions: ${$('txns').value}`,
+    `Accounts: ${$('accounts').value}`,
+    `Annual revenue: $${$('revenue').value}`,
+    `Add-ons: ${['ar','ap','inventory','classloc'].filter(k => $(k).checked).map(k => ADDONS[k].label).join(', ') || 'none'}`,
+    `Sales tax jurisdictions: ${$('taxJur').value}`,
+    `Payroll: ${$('payroll').checked ? `${$('employees').value} employees, ${(document.querySelector('input[name="freq"]:checked')||{}).value}` : 'no'}`,
+    `Advisory: ${getAdvisory().label}`,
+    `Cleanup months: ${$('cleanupMonths').value}`,
+    `Promo code: ${$('promo').value || '(none)'}`,
+    ``,
+    `--- CALCULATED QUOTE ---`,
+    `Monthly recurring: ${$('monthlyTotal').textContent}`,
+    `One-time fees: ${$('onetimeTotal').textContent}`,
+    `First-month invoice: ${$('firstMonth').textContent}`,
+    ``,
+    `Notes: ${$('notes').value}`
+  ];
+  const subject = `Pricing quote request — ${name}`;
+  const body = encodeURIComponent(lines.join('\n'));
+  window.location.href = `mailto:madison@peak-bk.com?subject=${encodeURIComponent(subject)}&body=${body}`;
+}
+
+// --- SHAREABLE LINK / URL PARAM SUPPORT ---
+// Param shorthand → element id mapping (kept short to keep links compact)
+const SHARE_PARAMS = {
+  text:     { name: 'clientName', promo: 'promo' },
+  number:   { txns: 'txns', accts: 'accounts', rev: 'revenue', tax: 'taxJur', emp: 'employees', clean: 'cleanupMonths' },
+  checkbox: { ar: 'ar', ap: 'ap', inv: 'inventory', cls: 'classloc', pr: 'payroll' }
+};
+const NUMBER_DEFAULTS = { txns: '180', accounts: '3', revenue: '500000', taxJur: '0', employees: '0', cleanupMonths: '0' };
+
+function applyUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  if (![...params.keys()].length) return;
+
+  Object.entries(SHARE_PARAMS.text).forEach(([p, id]) => {
+    if (params.has(p)) $(id).value = params.get(p);
+  });
+  Object.entries(SHARE_PARAMS.number).forEach(([p, id]) => {
+    if (params.has(p)) $(id).value = params.get(p);
+  });
+  Object.entries(SHARE_PARAMS.checkbox).forEach(([p, id]) => {
+    if (params.has(p)) $(id).checked = params.get(p) === '1';
+  });
+
+  // Industry — encoded by select index (option values aren't unique)
+  if (params.has('industry')) {
+    const idx = parseInt(params.get('industry'), 10);
+    const sel = $('industry');
+    if (!isNaN(idx) && idx >= 0 && idx < sel.options.length) sel.selectedIndex = idx;
+  }
+  // Radio groups
+  const setRadio = (groupName, val) => {
+    const r = document.querySelector(`input[name="${groupName}"][value="${val}"]`);
+    if (r) r.checked = true;
+  };
+  if (params.has('freq')) setRadio('freq', params.get('freq'));
+  if (params.has('prov')) setRadio('provider', params.get('prov'));
+  if (params.has('adv'))  setRadio('advisory', params.get('adv'));
+  // Manual tier override
+  if (params.has('tier') && TIERS.find(t => t.id === params.get('tier'))) {
+    manualTierId = params.get('tier');
+  }
+
+  // Sync visual states for radio rows and check rows so the UI matches the values
+  ['freqRow', 'providerRow', 'advisoryRow'].forEach(rowId => {
+    const row = document.getElementById(rowId);
+    if (!row) return;
+    row.querySelectorAll('label').forEach(x => {
+      const input = x.querySelector('input[type="radio"]');
+      x.classList.toggle('selected', !!(input && input.checked));
+    });
+  });
+  document.querySelectorAll('.check').forEach(l => {
+    const cb = l.querySelector('input[type="checkbox"]');
+    if (cb) l.classList.toggle('selected', cb.checked);
+  });
+}
+
+function buildShareLink() {
+  const params = new URLSearchParams();
+
+  // Text — only if non-empty and non-default
+  const nameVal = $('clientName').value.trim();
+  if (nameVal && nameVal !== 'Sample Client LLC') params.set('name', nameVal);
+  const promoVal = $('promo').value.trim();
+  if (promoVal) params.set('promo', promoVal);
+
+  // Numbers — only if non-default
+  Object.entries(SHARE_PARAMS.number).forEach(([p, id]) => {
+    const v = $(id).value;
+    if (v !== NUMBER_DEFAULTS[id]) params.set(p, v);
+  });
+
+  // Checkboxes — only if checked
+  Object.entries(SHARE_PARAMS.checkbox).forEach(([p, id]) => {
+    if ($(id).checked) params.set(p, '1');
+  });
+
+  // Industry — only if not default (index 0)
+  if ($('industry').selectedIndex !== 0) {
+    params.set('industry', String($('industry').selectedIndex));
+  }
+  // Radios — only if not default
+  const freq = (document.querySelector('input[name="freq"]:checked') || {}).value;
+  if (freq && freq !== 'monthly') params.set('freq', freq);
+  const prov = (document.querySelector('input[name="provider"]:checked') || {}).value;
+  if (prov && prov !== 'gusto') params.set('prov', prov);
+  const adv = (document.querySelector('input[name="advisory"]:checked') || {}).value;
+  if (adv && adv !== '0') params.set('adv', adv);
+  // Manual tier override
+  if (manualTierId) params.set('tier', manualTierId);
+
+  const base = window.location.origin + window.location.pathname;
+  const qs = params.toString();
+  return qs ? base + '?' + qs : base;
+}
+
+async function copyShareLink() {
+  const link = buildShareLink();
+  let copied = false;
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(link);
+      copied = true;
+    }
+  } catch (e) { copied = false; }
+  if (!copied) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = link;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      copied = document.execCommand('copy');
+      document.body.removeChild(ta);
+    } catch (e) { copied = false; }
+  }
+  if (copied) {
+    flashShareBtn('✓ Link copied');
+  } else {
+    window.prompt('Copy this shareable link:', link);
+  }
+}
+
+function flashShareBtn(msg) {
+  const btn = $('shareBtn');
+  if (!btn) return;
+  const original = btn.textContent;
+  btn.textContent = msg;
+  btn.disabled = true;
+  setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 1800);
+}
+
+// --- INIT ---
+applyUrlParams();
+wireAll();
+calc();
+</script>
+</body>
+</html>
