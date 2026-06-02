@@ -730,8 +730,9 @@
       <label class="lbl" for="notes">Anything else I should know? (optional)</label>
       <textarea id="notes"></textarea>
     </div>
-    <button class="btn" onclick="sendQuote()">Send my quote →</button>
+    <button class="btn" id="sendQuoteBtn" onclick="sendQuote()">Send my quote →</button>
     <div class="hint" style="margin-top:10px;color:rgba(100,79,70,0.85)">No obligation. I'll respond within three business days.</div>
+    <div id="quoteStatus"></div>
   </div>
 </div>
 
@@ -1074,7 +1075,7 @@ function resetAll() {
   calc();
 }
 
-function sendQuote() {
+async function sendQuote() {
   const name = $('contactName').value.trim();
   const email = $('contactEmail').value.trim();
   if (!name || !email) {
@@ -1088,14 +1089,8 @@ function sendQuote() {
     return;
   }
   const start = (document.querySelector('input[name="start"]:checked')||{}).value || '';
-  const lines = [
-    `Name: ${name}`,
-    `Business: ${$('contactBiz').value}`,
-    `Email: ${email}`,
-    `Phone: ${$('contactPhone').value}`,
-    `Preferred contact: ${cmethod}`,
-    `Start timing: ${start}`,
-    ``,
+
+  const summaryLines = [
     `--- QUOTE INPUTS ---`,
     `Client / prospect: ${$('clientName').value}`,
     `Industry: ${$('industry').options[$('industry').selectedIndex].text}`,
@@ -1112,13 +1107,47 @@ function sendQuote() {
     `--- CALCULATED QUOTE ---`,
     `Monthly recurring: ${$('monthlyTotal').textContent}`,
     `One-time fees: ${$('onetimeTotal').textContent}`,
-    `First-month invoice: ${$('firstMonth').textContent}`,
-    ``,
-    `Notes: ${$('notes').value}`
+    `First-month invoice: ${$('firstMonth').textContent}`
   ];
-  const subject = `Pricing quote request — ${name}`;
-  const body = encodeURIComponent(lines.join('\n'));
-  window.location.href = `mailto:madison@peak-bk.com?subject=${encodeURIComponent(subject)}&body=${body}`;
+
+  const payload = {
+    'Name': name,
+    'Business': $('contactBiz').value,
+    'Email': email,
+    'Phone': $('contactPhone').value,
+    'Preferred contact': cmethod,
+    'Start timing': start,
+    'Notes': $('notes').value,
+    'Quote details': summaryLines.join('\n'),
+    '_replyto': email,
+    '_subject': `Pricing quote request from ${name}`
+  };
+
+  const statusEl = $('quoteStatus');
+  const btn = $('sendQuoteBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+  if (statusEl) statusEl.innerHTML = '';
+
+  try {
+    const response = await fetch('https://formspree.io/f/mjgznrrk', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (response.ok) {
+      if (statusEl) {
+        statusEl.innerHTML = '<div style="color:#1f6f3f;padding:12px 14px;background:#e8f5e9;border-radius:8px;margin-top:10px;font-size:14px">Thanks! Your quote has been sent. I will follow up within 3 business days at the email you provided.</div>';
+      }
+      if (btn) { btn.textContent = 'Sent ✓'; }
+    } else {
+      throw new Error('Submission failed');
+    }
+  } catch (err) {
+    if (statusEl) {
+      statusEl.innerHTML = '<div style="color:#a23a2c;padding:12px 14px;background:#fbe9e7;border-radius:8px;margin-top:10px;font-size:14px">Something went wrong sending your quote. Please email madison@peak-bk.com directly and I will respond as soon as I can.</div>';
+    }
+    if (btn) { btn.disabled = false; btn.textContent = 'Send my quote →'; }
+  }
 }
 
 // --- SHAREABLE LINK / URL PARAM SUPPORT ---
