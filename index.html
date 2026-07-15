@@ -383,7 +383,8 @@
   </div>
 </header>
 
-<!-- TIER CARDS -->
+<!-- TIER CARDS (bookkeeping mode only) -->
+<div id="tierCardsWrap">
 <div class="tiers" id="tierCards">
   <div class="tier" data-tier="starter">
     <div class="tier-name">STARTER</div>
@@ -471,10 +472,23 @@
 <div class="tier-overrride-banner" id="tierOverrideBanner">
   You've manually selected <b id="overrideName"></b>. Based on your inputs we recommend <b id="recommendedName"></b> — <a id="useRecommended">use the recommendation</a>.
 </div>
+</div><!-- /tierCardsWrap -->
 
 <!-- INPUTS + QUOTE -->
 <div class="grid">
   <div class="inputs">
+
+    <div class="panel">
+      <h2>What do you need?</h2>
+      <div class="radio-row" id="serviceTypeRow" style="flex-direction:column">
+        <label class="selected"><input type="radio" name="serviceType" value="bookkeeping" checked> Ongoing monthly bookkeeping</label>
+        <label><input type="radio" name="serviceType" value="reconreview"> Reconciliation &amp; Review only (I do my own categorization)</label>
+        <label><input type="radio" name="serviceType" value="qbosetup"> New QuickBooks Online setup (one-time)</label>
+        <label><input type="radio" name="serviceType" value="catchup"> Standalone catch-up / cleanup (no ongoing service)</label>
+      </div>
+    </div>
+
+    <div id="bookkeepingPanels">
 
     <div class="panel">
       <h2>Your Business</h2>
@@ -492,6 +506,9 @@
           <option value="1.20">Restaurant / Hospitality</option>
           <option value="1.25">Retail (POS / inventory / sales tax)</option>
           <option value="1.30">E-commerce (multi-channel / inventory)</option>
+          <option value="1.20">PT / Healthcare (cash-pay only)</option>
+          <option value="1.35">PT / Healthcare (insurance-based)</option>
+          <option value="1.50">PT / Healthcare (workers' comp / PIP-heavy)</option>
         </select>
         <div class="hint">Complexity multiplier applied to the bookkeeping base.</div>
       </div>
@@ -550,7 +567,14 @@
           <span class="meta">+$80</span>
         </label>
       </div>
-      <div class="field" style="margin-top:14px">
+      <label class="check" style="margin-top:14px">
+        <input type="checkbox" id="salesTaxToggle">
+        <span class="addon-body">
+          <span><b>I collect sales tax</b></span>
+          <span class="scope">Check this to add sales tax jurisdictions to your quote.</span>
+        </span>
+      </label>
+      <div class="field" id="taxJurWrap" style="display:none; margin-top:10px">
         <label class="lbl" for="taxJur">Sales tax jurisdictions ($60 each)</label>
         <input type="number" id="taxJur" min="0" step="1" value="0">
       </div>
@@ -568,27 +592,29 @@
           <span class="meta">$60 base + $10 / employee</span>
         </label>
       </div>
-      <div class="row-2" style="margin-top:14px">
-        <div class="field">
-          <label class="lbl" for="employees">Employee count</label>
-          <input type="number" id="employees" min="0" step="1" value="0">
-        </div>
-        <div class="field">
-          <label class="lbl">Pay frequency</label>
-          <div class="radio-row" id="freqRow">
-            <label class="selected"><input type="radio" name="freq" value="monthly" checked> Monthly</label>
-            <label><input type="radio" name="freq" value="semimonthly"> Semi-monthly (+10%)</label>
-            <label><input type="radio" name="freq" value="biweekly"> Bi-weekly (+15%)</label>
+      <div id="payrollDetails" style="display:none">
+        <div class="row-2" style="margin-top:14px">
+          <div class="field">
+            <label class="lbl" for="employees">Employee count</label>
+            <input type="number" id="employees" min="0" step="1" value="0">
+          </div>
+          <div class="field">
+            <label class="lbl">Pay frequency</label>
+            <div class="radio-row" id="freqRow">
+              <label class="selected"><input type="radio" name="freq" value="monthly" checked> Monthly</label>
+              <label><input type="radio" name="freq" value="semimonthly"> Semi-monthly (+10%)</label>
+              <label><input type="radio" name="freq" value="biweekly"> Bi-weekly (+15%)</label>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="field" style="margin-top:14px">
-        <label class="lbl">Payroll software</label>
-        <div class="radio-row" id="providerRow">
-          <label class="selected"><input type="radio" name="provider" value="gusto" checked> Gusto (my standard)</label>
-          <label><input type="radio" name="provider" value="other"> Other provider (+$50/mo)</label>
+        <div class="field" style="margin-top:14px">
+          <label class="lbl">Payroll software</label>
+          <div class="radio-row" id="providerRow">
+            <label class="selected"><input type="radio" name="provider" value="gusto" checked> Gusto (my standard)</label>
+            <label><input type="radio" name="provider" value="other"> Other provider (+$50/mo)</label>
+          </div>
+          <div class="hint">I work most efficiently in Gusto. Clients who stay on another provider (Bench, ADP, Paychex, OnPay, Patriot, etc.) carry a flat $50/mo surcharge to cover the extra configuration and reconciliation time. Switching is also an option — I charge a one-time payroll migration fee of $300–$500 separately.</div>
         </div>
-        <div class="hint">I work most efficiently in Gusto. Clients who stay on another provider (Bench, ADP, Paychex, OnPay, Patriot, etc.) carry a flat $50/mo surcharge to cover the extra configuration and reconciliation time. Switching is also an option — I charge a one-time payroll migration fee of $300–$500 separately.</div>
       </div>
     </div>
 
@@ -608,10 +634,112 @@
 
     <div class="panel">
       <h2>Cleanup / Catch-up</h2>
-      <div class="field">
+      <label class="check">
+        <input type="checkbox" id="needsCleanup">
+        <span class="addon-body">
+          <span><b>My books need catch-up or cleanup work</b></span>
+          <span class="scope">Check this if your books aren't current, or if a prior period needs correcting before ongoing bookkeeping starts.</span>
+        </span>
+      </label>
+      <div class="field" id="cleanupWrap" style="display:none; margin-top:10px">
         <label class="lbl" for="cleanupMonths">Months of cleanup needed</label>
         <input type="number" id="cleanupMonths" min="0" step="1" value="0">
         <div class="hint">Priced at monthly rate × months × 0.85 (project discount), $600 minimum.</div>
+      </div>
+    </div>
+
+    </div><!-- /bookkeepingPanels -->
+
+    <div class="panel" id="reconPanel" style="display:none">
+      <h2>Reconciliation &amp; Review - Accounts</h2>
+      <div class="hint" style="margin-bottom:12px">New service, still being calibrated with real clients. This estimate uses an hours-per-account-type formula, not yet tested against actual time. Final pricing confirmed directly with Madison.</div>
+      <div class="row-2">
+        <div class="field">
+          <label class="lbl" for="reconBank">Bank accounts</label>
+          <input type="number" id="reconBank" min="0" step="1" value="1">
+        </div>
+        <div class="field">
+          <label class="lbl" for="reconCards">Credit cards</label>
+          <input type="number" id="reconCards" min="0" step="1" value="0">
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl" for="reconLoans">Loans / lines of credit</label>
+        <input type="number" id="reconLoans" min="0" step="1" value="0">
+        <div class="hint">Loans take longer to verify each cycle (statement + amortization schedule check), priced accordingly.</div>
+      </div>
+      <div class="field" style="margin-top:10px">
+        <label class="lbl" for="reconTotalTxns">Approximate total monthly transactions across bank + card accounts</label>
+        <input type="number" id="reconTotalTxns" min="0" step="10" value="0">
+        <div class="hint">Only fill this in if activity is unusually high, most small businesses can leave this at 0. Combined total across bank and card accounts, not loans (loan review isn't driven by transaction count). Only adds to the fee for activity above about 150/month per bank or card account, so it accounts for multiple heavy accounts, not just the busiest one.</div>
+      </div>
+      <label class="check" style="margin-top:10px">
+        <input type="checkbox" id="reconNeedsCutover">
+        <span class="addon-body">
+          <span><b>I need a one-time catch-up to get my balance sheet accurate first</b></span>
+          <span class="scope">A one-time fee to true up your balance sheet as of a cutover date, before ongoing reconciliation starts.</span>
+        </span>
+      </label>
+      <div class="field" id="reconCutoverMonthsWrap" style="display:none; margin-top:10px">
+        <label class="lbl" for="reconCutoverMonths">Months of this year needing loan verification</label>
+        <input type="number" id="reconCutoverMonths" min="0" step="1" value="0">
+        <div class="hint">Elapsed months since your last confirmed-accurate loan balance.</div>
+      </div>
+    </div>
+
+    <div class="panel" id="qboSetupPanel" style="display:none">
+      <h2>New QBO Setup</h2>
+      <div class="field">
+        <label class="lbl" for="qboAccounts">Accounts to connect</label>
+        <input type="number" id="qboAccounts" min="1" step="1" value="2">
+        <div class="hint">Checking, savings, credit cards, loans, merchant accounts.</div>
+      </div>
+      <label class="check">
+        <input type="checkbox" id="qboMigrating">
+        <span class="addon-body">
+          <span><b>Migrating from another platform</b></span>
+          <span class="scope">Spreadsheets, Wave, FreshBooks, Xero, etc.</span>
+        </span>
+      </label>
+      <label class="check" style="margin-top:10px">
+        <input type="checkbox" id="qboClassTracking">
+        <span class="addon-body">
+          <span><b>Need class/location tracking or an industry-specific chart of accounts</b></span>
+        </span>
+      </label>
+    </div>
+
+    <div class="panel" id="catchupPanel" style="display:none">
+      <h2>Standalone Catch-Up / Cleanup</h2>
+      <div class="hint" style="margin-bottom:12px">A one-time project, no ongoing monthly service attached. Priced the same way bundled cleanup is: your applicable monthly rate × months × 0.85, $600 minimum.</div>
+      <div class="field">
+        <label class="lbl" for="catchupIndustry">Industry</label>
+        <select id="catchupIndustry">
+          <option value="1.00">Service / Consulting / Professional</option>
+          <option value="1.10">Real Estate / Agency</option>
+          <option value="1.20">Nonprofit (grant tracking)</option>
+          <option value="1.25">Trades / Construction (WIP)</option>
+          <option value="1.20">Restaurant / Hospitality</option>
+          <option value="1.25">Retail (POS / inventory / sales tax)</option>
+          <option value="1.30">E-commerce (multi-channel / inventory)</option>
+          <option value="1.20">PT / Healthcare (cash-pay only)</option>
+          <option value="1.35">PT / Healthcare (insurance-based)</option>
+          <option value="1.50">PT / Healthcare (workers' comp / PIP-heavy)</option>
+        </select>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label class="lbl" for="catchupTxns">Monthly transactions (during the cleanup period)</label>
+          <input type="number" id="catchupTxns" min="0" step="10" value="180">
+        </div>
+        <div class="field">
+          <label class="lbl" for="catchupAccounts">Number of financial accounts</label>
+          <input type="number" id="catchupAccounts" min="1" step="1" value="3">
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl" for="catchupMonths">Months needing cleanup</label>
+        <input type="number" id="catchupMonths" min="0" step="1" value="3">
       </div>
     </div>
 
@@ -672,15 +800,107 @@
           <span class="band">Bookkeeping industry guides (Karbon, Ignition, Relay) cite 1%–3% of revenue as a healthy band for small businesses.</span>
         </div>
 
+        <div style="background: #fffbec; border: 1px solid #f0ddb0; border-radius: 8px; margin: 16px 0 4px; padding: 12px 14px; font-size: 12.5px; color: #6b5a2a; line-height: 1.5;">
+          <strong style="color: #7a5500;">Heads up:</strong> This estimate is a starting point based on your inputs. Your final monthly rate may be different depending on your billing structure, number of payers, actual transaction volume, and any cleanup needed. All quotes are confirmed in a written proposal after a brief review of your financials — nothing is locked in until you sign.
+        </div>
+
         <div style="background: var(--rose-2); margin: 16px -18px -16px; padding: 14px 18px; border-top: 1px solid var(--line);">
           <div class="btn-row" style="justify-content: center;">
             <button class="btn secondary" onclick="window.print()">Print / Save PDF</button>
             <button class="btn secondary" onclick="resetAll()">Reset inputs</button>
-            <button class="btn secondary" id="shareBtn" onclick="copyShareLink()">Copy shareable link</button>
+            <button class="btn secondary" id="shareBtn" onclick="copyShareLink(this)">Copy shareable link</button>
           </div>
         </div>
       </div>
     </div>
+
+    <div class="quote" id="quoteRecon" style="display:none">
+      <div class="quote-head">
+        <span>Your Quote</span>
+        <span class="pill">Reconciliation &amp; Review</span>
+      </div>
+      <div class="quote-body">
+        <div class="quote-section-label first">Monthly Reconciliation &amp; Review</div>
+        <div class="qline"><span>Bank accounts</span><span id="reconBankLine">$0</span></div>
+        <div class="qline"><span>Credit cards</span><span id="reconCardsLine">$0</span></div>
+        <div class="qline"><span>Loans</span><span id="reconLoansLine">$0</span></div>
+        <div class="qline" id="reconVolumeLineWrap" style="display:none"><span>High-volume adjustment</span><span id="reconVolumeLine">$0</span></div>
+        <div class="qline" id="reconPromoLineWrap" style="display:none"><span>Promo discount</span><span id="reconPromoLine">$0</span></div>
+        <div class="qline total"><span>Monthly recurring total</span><span id="reconMonthlyTotal">$0</span></div>
+
+        <div class="quote-section-label">One-Time Fees</div>
+        <div class="qline" id="reconCutoverLineWrap" style="display:none"><span>Balance sheet get-started fee</span><span id="reconCutoverLine">$0</span></div>
+        <div class="qline" id="reconLoanCatchupLineWrap" style="display:none"><span>Loan YTD catch-up</span><span id="reconLoanCatchupLine">$0</span></div>
+        <div class="qline" id="reconOnetimePromoLineWrap" style="display:none"><span>Promo discount (one-time)</span><span id="reconOnetimePromoLine">$0</span></div>
+        <div class="qline subtotal"><span>One-time total</span><span id="reconOnetimeTotal">$0</span></div>
+
+        <div style="background: #fffbec; border: 1px solid #f0ddb0; border-radius: 8px; margin: 16px 0 4px; padding: 12px 14px; font-size: 12.5px; color: #6b5a2a; line-height: 1.5;">
+          <strong style="color: #7a5500;">Heads up:</strong> This is a new service line. The estimate is a starting point built from industry benchmarks for oversight/review-style services, not yet measured against real engagement time. Your final rate is confirmed directly with Madison before anything is finalized.
+        </div>
+
+        <div style="background: var(--rose-2); margin: 16px -18px -16px; padding: 14px 18px; border-top: 1px solid var(--line);">
+          <div class="btn-row" style="justify-content: center;">
+            <button class="btn secondary" onclick="window.print()">Print / Save PDF</button>
+            <button class="btn secondary" onclick="resetAll()">Reset inputs</button>
+            <button class="btn secondary" id="shareBtnRecon" onclick="copyShareLink(this)">Copy shareable link</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quote" id="quoteQboSetup" style="display:none">
+      <div class="quote-head">
+        <span>Your Quote</span>
+        <span class="pill">New QBO Setup</span>
+      </div>
+      <div class="quote-body">
+        <div class="quote-section-label first">One-Time Setup Fee</div>
+        <div class="qline"><span>Scope</span><span id="qboScopeLabel">Simple</span></div>
+        <div class="qline"><span>Base fee</span><span id="qboBaseLine">$0</span></div>
+        <div class="qline" id="qboPromoLineWrap" style="display:none"><span>Promo discount</span><span id="qboPromoLine">$0</span></div>
+        <div class="qline total"><span>One-time total</span><span id="qboTotal">$0</span></div>
+
+        <div style="background: #fffbec; border: 1px solid #f0ddb0; border-radius: 8px; margin: 16px 0 4px; padding: 12px 14px; font-size: 12.5px; color: #6b5a2a; line-height: 1.5;">
+          <strong style="color: #7a5500;">Heads up:</strong> This is a one-time project fee, no ongoing monthly charge. Final scope and price confirmed directly with Madison after a quick look at your accounts.
+        </div>
+
+        <div style="background: var(--rose-2); margin: 16px -18px -16px; padding: 14px 18px; border-top: 1px solid var(--line);">
+          <div class="btn-row" style="justify-content: center;">
+            <button class="btn secondary" onclick="window.print()">Print / Save PDF</button>
+            <button class="btn secondary" onclick="resetAll()">Reset inputs</button>
+            <button class="btn secondary" id="shareBtnQbo" onclick="copyShareLink(this)">Copy shareable link</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quote" id="quoteCatchup" style="display:none">
+      <div class="quote-head">
+        <span>Your Quote</span>
+        <span class="pill">Standalone Catch-Up</span>
+      </div>
+      <div class="quote-body">
+        <div class="quote-section-label first">Catch-Up / Cleanup Project</div>
+        <div class="qline"><span>Applicable tier (for rate purposes)</span><span id="catchupTierLabel">Growth</span></div>
+        <div class="qline"><span>Monthly-rate equivalent</span><span id="catchupRateLine">$0</span></div>
+        <div class="qline"><span>Months</span><span id="catchupMonthsLine">0</span></div>
+        <div class="qline" id="catchupPromoLineWrap" style="display:none"><span>Promo discount</span><span id="catchupPromoLine">$0</span></div>
+        <div class="qline total"><span>One-time project fee</span><span id="catchupTotal">$0</span></div>
+
+        <div style="background: #fffbec; border: 1px solid #f0ddb0; border-radius: 8px; margin: 16px 0 4px; padding: 12px 14px; font-size: 12.5px; color: #6b5a2a; line-height: 1.5;">
+          <strong style="color: #7a5500;">Heads up:</strong> This is a one-time project, no ongoing monthly commitment. Final scope confirmed directly with Madison after a look at your books.
+        </div>
+
+        <div style="background: var(--rose-2); margin: 16px -18px -16px; padding: 14px 18px; border-top: 1px solid var(--line);">
+          <div class="btn-row" style="justify-content: center;">
+            <button class="btn secondary" onclick="window.print()">Print / Save PDF</button>
+            <button class="btn secondary" onclick="resetAll()">Reset inputs</button>
+            <button class="btn secondary" id="shareBtnCatchup" onclick="copyShareLink(this)">Copy shareable link</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -797,10 +1017,30 @@ const CLEANUP_DISCOUNT = 0.85;
 const CLEANUP_MIN = 600;
 
 const PROMO_CODES = {
-  'FRIENDS20': { rate: 0.20, label: '20% off — friends & family (FRIENDS20)' },
-  'FAMILY20':  { rate: 0.20, label: '20% off — friends & family (FAMILY20)' },
-  'NETWORK15': { rate: 0.15, label: '15% off — networking group (NETWORK15)' }
+  'FRIENDS10': { rate: 0.10, label: '10% off, friends & family (FRIENDS10)' },
+  'FAMILY10':  { rate: 0.10, label: '10% off, friends & family (FAMILY10)' },
+  'NETWORK10': { rate: 0.10, label: '10% off, networking group (NETWORK10)' }
 };
+
+// Reconciliation & Review — hours-per-account-type formula.
+// See Reconciliation_Review_Service_Scope_INTERNAL.docx Section 5 for the
+// reasoning. Estimate only, not yet calibrated against real engagement time.
+const RECON_HR_BANK = 0.3;
+const RECON_HR_CARD = 0.35;
+const RECON_HR_LOAN = 0.6;
+const RECON_HOURLY_RATE = 100;   // midpoint of the $75-150/hr floor
+const RECON_VOLUME_THRESHOLD = 150;   // txns/month per account before volume adjustment applies
+const RECON_VOLUME_HR_PER_100 = 0.1;   // additional hours per 100 txns above threshold
+const RECON_CUTOVER_BASE = 300;   // base Transition Reconciliation fee
+const RECON_CUTOVER_PER_ACCOUNT = 60;   // added per account above the first, capped
+const RECON_CUTOVER_MAX = 800;
+const RECON_LOAN_CATCHUP_HR_PER_MONTH = 0.25;   // per loan, per elapsed month
+
+// New QBO Setup — banded by account count / migration / complexity.
+// See OneOff_Projects_Reference_INTERNAL.docx Section 1.
+const QBO_SIMPLE_MIN = 240, QBO_SIMPLE_MAX = 350;
+const QBO_STANDARD_MIN = 400, QBO_STANDARD_MAX = 600;
+const QBO_COMPLEX_MIN = 600, QBO_COMPLEX_MAX = 900;
 
 // --- HELPERS ---
 const $ = id => document.getElementById(id);
@@ -828,8 +1068,36 @@ function getAdvisory() {
   return { value: parseFloat(r.value), label: labels[r.value] };
 }
 
-// --- CORE CALC ---
-function calc() {
+// --- CONDITIONAL FIELD VISIBILITY ---
+// Pure function of each gating checkbox's current state — runs on every
+// calc() so manual toggles, resets, and URL-param loads all stay in sync.
+// Turning a toggle off also zeroes its hidden field so stale values can't
+// silently affect the price.
+function updateConditionalVisibility() {
+  const payrollOn = $('payroll').checked;
+  $('payrollDetails').style.display = payrollOn ? 'block' : 'none';
+
+  const taxOn = $('salesTaxToggle').checked;
+  $('taxJurWrap').style.display = taxOn ? 'block' : 'none';
+  if (!taxOn) $('taxJur').value = 0;
+
+  const cleanupOn = $('needsCleanup').checked;
+  $('cleanupWrap').style.display = cleanupOn ? 'block' : 'none';
+  if (!cleanupOn) $('cleanupMonths').value = 0;
+}
+
+// One-time bridge for pre-filled share links: if a URL param set a value
+// behind a toggle (e.g. ?tax=2 or ?clean=3) without also flipping the
+// toggle itself, check the toggle so the field shows correctly on load.
+function syncTogglesFromValues() {
+  if ((parseInt($('taxJur').value) || 0) > 0) $('salesTaxToggle').checked = true;
+  if ((parseInt($('cleanupMonths').value) || 0) > 0) $('needsCleanup').checked = true;
+  if ((parseInt($('reconCutoverMonths').value) || 0) > 0) $('reconNeedsCutover').checked = true;
+}
+
+// --- CORE CALC (bookkeeping mode) ---
+function calcBookkeeping() {
+  updateConditionalVisibility();
   const txns = Math.max(0, parseInt($('txns').value) || 0);
   const accts = Math.max(1, parseInt($('accounts').value) || 1);
   const revenue = Math.max(0, parseFloat($('revenue').value) || 0);
@@ -986,6 +1254,156 @@ function calc() {
   }
 }
 
+// --- MODE DISPATCH ---
+function getServiceType() {
+  const r = document.querySelector('input[name="serviceType"]:checked');
+  return r ? r.value : 'bookkeeping';
+}
+
+function applyPromo(baseAmount) {
+  // Shared promo-code handling for the two new modes (bookkeeping mode has
+  // its own inline version below, left untouched to avoid regressions).
+  const promo = ($('promo').value || '').trim().toUpperCase();
+  let promoRate = 0;
+  const promoStatusEl = $('promoStatus');
+  if (promo === '') {
+    promoStatusEl.innerHTML = '';
+  } else if (PROMO_CODES[promo]) {
+    promoRate = PROMO_CODES[promo].rate;
+    promoStatusEl.innerHTML = `<div class="promo-applied">✓ Applied: ${escapeHtml(PROMO_CODES[promo].label)}</div>`;
+  } else {
+    promoStatusEl.innerHTML = `<div class="promo-invalid">Code not recognized — ask Madison if you think it should work.</div>`;
+  }
+  return promoRate;
+}
+
+function calcReconReview() {
+  const bank = Math.max(0, parseInt($('reconBank').value) || 0);
+  const cards = Math.max(0, parseInt($('reconCards').value) || 0);
+  const loans = Math.max(0, parseInt($('reconLoans').value) || 0);
+  const totalTxns = Math.max(0, parseInt($('reconTotalTxns').value) || 0);
+  const volumeBaseline = (bank + cards) * RECON_VOLUME_THRESHOLD;
+  const excessVolume = totalTxns > 0 ? Math.max(0, totalTxns - volumeBaseline) : 0;
+
+  const bankCost = bank * RECON_HR_BANK * RECON_HOURLY_RATE;
+  const cardCost = cards * RECON_HR_CARD * RECON_HOURLY_RATE;
+  const loanCost = loans * RECON_HR_LOAN * RECON_HOURLY_RATE;
+  const volumeCost = (excessVolume / 100) * RECON_VOLUME_HR_PER_100 * RECON_HOURLY_RATE;
+
+  $('reconBankLine').textContent = fmt(bankCost);
+  $('reconCardsLine').textContent = fmt(cardCost);
+  $('reconLoansLine').textContent = fmt(loanCost);
+  $('reconVolumeLineWrap').style.display = volumeCost > 0 ? 'flex' : 'none';
+  $('reconVolumeLine').textContent = fmt(volumeCost);
+
+  const monthlyPreDiscount = bankCost + cardCost + loanCost + volumeCost;
+  const promoRate = applyPromo(monthlyPreDiscount);
+  const promoMonthly = monthlyPreDiscount * promoRate;
+  $('reconPromoLineWrap').style.display = promoRate > 0 ? 'flex' : 'none';
+  $('reconPromoLine').textContent = '−' + fmt(promoMonthly);
+  const monthlyTotal = monthlyPreDiscount - promoMonthly;
+  $('reconMonthlyTotal').textContent = fmt(monthlyTotal);
+
+  // One-time get-started fee
+  const needsCutover = $('reconNeedsCutover').checked;
+  $('reconCutoverMonthsWrap').style.display = needsCutover ? 'block' : 'none';
+  if (!needsCutover) $('reconCutoverMonths').value = 0;
+
+  let cutoverFee = 0, loanCatchupFee = 0;
+  if (needsCutover) {
+    const totalAccounts = bank + cards + loans;
+    cutoverFee = Math.min(RECON_CUTOVER_MAX, RECON_CUTOVER_BASE + Math.max(0, totalAccounts - 1) * RECON_CUTOVER_PER_ACCOUNT);
+    const cutoverMonths = Math.max(0, parseInt($('reconCutoverMonths').value) || 0);
+    loanCatchupFee = loans * cutoverMonths * RECON_LOAN_CATCHUP_HR_PER_MONTH * RECON_HOURLY_RATE;
+  }
+  $('reconCutoverLineWrap').style.display = needsCutover ? 'flex' : 'none';
+  $('reconCutoverLine').textContent = fmt(cutoverFee);
+  $('reconLoanCatchupLineWrap').style.display = (needsCutover && loanCatchupFee > 0) ? 'flex' : 'none';
+  $('reconLoanCatchupLine').textContent = fmt(loanCatchupFee);
+
+  const onetimePre = cutoverFee + loanCatchupFee;
+  const onetimePromo = onetimePre * promoRate;
+  $('reconOnetimePromoLineWrap').style.display = (promoRate > 0 && onetimePre > 0) ? 'flex' : 'none';
+  $('reconOnetimePromoLine').textContent = '−' + fmt(onetimePromo);
+  $('reconOnetimeTotal').textContent = fmt(onetimePre - onetimePromo);
+}
+
+function calcQboSetup() {
+  const accounts = Math.max(1, parseInt($('qboAccounts').value) || 1);
+  const migrating = $('qboMigrating').checked;
+  const classTracking = $('qboClassTracking').checked;
+
+  let scope, base;
+  if (accounts <= 2 && !migrating && !classTracking) {
+    scope = 'Simple';
+    base = QBO_SIMPLE_MIN + Math.min(1, Math.max(0, accounts - 1)) * (QBO_SIMPLE_MAX - QBO_SIMPLE_MIN);
+  } else if (accounts <= 4 || migrating) {
+    scope = 'Standard';
+    const extra = Math.max(0, accounts - 2);
+    base = Math.min(QBO_STANDARD_MAX, QBO_STANDARD_MIN + extra * 50 + (migrating ? 50 : 0));
+  } else {
+    scope = 'Complex';
+    const extra = Math.max(0, accounts - 4);
+    base = Math.min(QBO_COMPLEX_MAX, QBO_COMPLEX_MIN + extra * 50 + (classTracking ? 100 : 0));
+  }
+
+  $('qboScopeLabel').textContent = scope;
+  $('qboBaseLine').textContent = fmt(base);
+
+  const promoRate = applyPromo(base);
+  const promoAmt = base * promoRate;
+  $('qboPromoLineWrap').style.display = promoRate > 0 ? 'flex' : 'none';
+  $('qboPromoLine').textContent = '−' + fmt(promoAmt);
+  $('qboTotal').textContent = fmt(base - promoAmt);
+}
+
+function calcCatchup() {
+  const txns = Math.max(0, parseInt($('catchupTxns').value) || 0);
+  const accts = Math.max(1, parseInt($('catchupAccounts').value) || 1);
+  const industryMult = parseFloat($('catchupIndustry').value);
+  const months = Math.max(0, parseInt($('catchupMonths').value) || 0);
+
+  const tier = pickTier(txns, accts);
+  const extraTxns = Math.max(0, txns - tier.txns);
+  const extraAccts = Math.max(0, accts - tier.accts);
+  const extraTxnCost = extraTxns * EXTRA_TXN_RATE;
+  const extraAcctCost = extraAccts * EXTRA_ACCT_RATE;
+  const monthlyRateEquivalent = (tier.price + extraTxnCost + extraAcctCost) * industryMult;
+
+  $('catchupTierLabel').textContent = tier.name;
+  $('catchupRateLine').textContent = fmt(monthlyRateEquivalent);
+  $('catchupMonthsLine').textContent = String(months);
+
+  let fee = 0;
+  if (months > 0) {
+    fee = Math.max(CLEANUP_MIN, monthlyRateEquivalent * months * CLEANUP_DISCOUNT);
+  }
+
+  const promoRate = applyPromo(fee);
+  const promoAmt = fee * promoRate;
+  $('catchupPromoLineWrap').style.display = (promoRate > 0 && fee > 0) ? 'flex' : 'none';
+  $('catchupPromoLine').textContent = '−' + fmt(promoAmt);
+  $('catchupTotal').textContent = fmt(fee - promoAmt);
+}
+
+function calc() {
+  const mode = getServiceType();
+  $('tierCardsWrap').style.display = mode === 'bookkeeping' ? 'block' : 'none';
+  $('bookkeepingPanels').style.display = mode === 'bookkeeping' ? 'block' : 'none';
+  $('reconPanel').style.display = mode === 'reconreview' ? 'block' : 'none';
+  $('qboSetupPanel').style.display = mode === 'qbosetup' ? 'block' : 'none';
+  $('catchupPanel').style.display = mode === 'catchup' ? 'block' : 'none';
+  $('quote').style.display = mode === 'bookkeeping' ? 'block' : 'none';
+  $('quoteRecon').style.display = mode === 'reconreview' ? 'block' : 'none';
+  $('quoteQboSetup').style.display = mode === 'qbosetup' ? 'block' : 'none';
+  $('quoteCatchup').style.display = mode === 'catchup' ? 'block' : 'none';
+
+  if (mode === 'reconreview') calcReconReview();
+  else if (mode === 'qbosetup') calcQboSetup();
+  else if (mode === 'catchup') calcCatchup();
+  else calcBookkeeping();
+}
+
 // --- UI WIRING ---
 function wireRadios(rowId) {
   const row = document.getElementById(rowId);
@@ -1038,6 +1456,7 @@ function updatePhoneRequired() {
 }
 
 function wireAll() {
+  wireRadios('serviceTypeRow');
   wireRadios('freqRow');
   wireRadios('providerRow');
   wireRadios('advisoryRow');
@@ -1062,7 +1481,7 @@ function resetAll() {
   $('txns').value = 180;
   $('accounts').value = 3;
   $('revenue').value = 500000;
-  ['ar','ap','inventory','classloc','payroll'].forEach(id => $(id).checked = false);
+  ['ar','ap','inventory','classloc','payroll','salesTaxToggle','needsCleanup'].forEach(id => $(id).checked = false);
   $('taxJur').value = 0;
   $('employees').value = 0;
   $('cleanupMonths').value = 0;
@@ -1072,6 +1491,24 @@ function resetAll() {
   document.querySelectorAll('#freqRow label').forEach((l,i) => l.classList.toggle('selected', i===0));
   document.querySelectorAll('#advisoryRow label').forEach((l,i) => l.classList.toggle('selected', i===0));
   document.querySelectorAll('.check').forEach(l => l.classList.remove('selected'));
+
+  // New service-type modes
+  document.querySelector('input[name="serviceType"][value="bookkeeping"]').checked = true;
+  document.querySelectorAll('#serviceTypeRow label').forEach((l,i) => l.classList.toggle('selected', i===0));
+  $('reconBank').value = 1;
+  $('reconCards').value = 0;
+  $('reconLoans').value = 0;
+  $('reconTotalTxns').value = 0;
+  $('reconNeedsCutover').checked = false;
+  $('reconCutoverMonths').value = 0;
+  $('qboAccounts').value = 2;
+  $('qboMigrating').checked = false;
+  $('qboClassTracking').checked = false;
+  $('catchupIndustry').selectedIndex = 0;
+  $('catchupTxns').value = 180;
+  $('catchupAccounts').value = 3;
+  $('catchupMonths').value = 3;
+
   calc();
 }
 
@@ -1090,25 +1527,73 @@ async function sendQuote() {
   }
   const start = (document.querySelector('input[name="start"]:checked')||{}).value || '';
 
-  const summaryLines = [
-    `--- QUOTE INPUTS ---`,
-    `Client / prospect: ${$('clientName').value}`,
-    `Industry: ${$('industry').options[$('industry').selectedIndex].text}`,
-    `Monthly transactions: ${$('txns').value}`,
-    `Accounts: ${$('accounts').value}`,
-    `Annual revenue: $${$('revenue').value}`,
-    `Add-ons: ${['ar','ap','inventory','classloc'].filter(k => $(k).checked).map(k => ADDONS[k].label).join(', ') || 'none'}`,
-    `Sales tax jurisdictions: ${$('taxJur').value}`,
-    `Payroll: ${$('payroll').checked ? `${$('employees').value} employees, ${(document.querySelector('input[name="freq"]:checked')||{}).value}` : 'no'}`,
-    `Advisory: ${getAdvisory().label}`,
-    `Cleanup months: ${$('cleanupMonths').value}`,
-    `Promo code: ${$('promo').value || '(none)'}`,
-    ``,
-    `--- CALCULATED QUOTE ---`,
-    `Monthly recurring: ${$('monthlyTotal').textContent}`,
-    `One-time fees: ${$('onetimeTotal').textContent}`,
-    `First-month invoice: ${$('firstMonth').textContent}`
-  ];
+  const serviceMode = getServiceType();
+  let summaryLines;
+  if (serviceMode === 'reconreview') {
+    summaryLines = [
+      `--- QUOTE INPUTS (Reconciliation & Review) ---`,
+      `Client / prospect: ${$('clientName').value}`,
+      `Bank accounts: ${$('reconBank').value}`,
+      `Credit cards: ${$('reconCards').value}`,
+      `Loans / lines of credit: ${$('reconLoans').value}`,
+      `Total bank+card transactions (if entered): ${$('reconTotalTxns').value}`,
+      `Needs one-time get-started cutover: ${$('reconNeedsCutover').checked ? 'yes' : 'no'}`,
+      `Months needing loan verification: ${$('reconCutoverMonths').value}`,
+      `Promo code: ${$('promo').value || '(none)'}`,
+      ``,
+      `--- CALCULATED QUOTE ---`,
+      `Monthly recurring: ${$('reconMonthlyTotal').textContent}`,
+      `One-time fees: ${$('reconOnetimeTotal').textContent}`
+    ];
+  } else if (serviceMode === 'qbosetup') {
+    summaryLines = [
+      `--- QUOTE INPUTS (New QBO Setup) ---`,
+      `Client / prospect: ${$('clientName').value}`,
+      `Accounts to connect: ${$('qboAccounts').value}`,
+      `Migrating from another platform: ${$('qboMigrating').checked ? 'yes' : 'no'}`,
+      `Class/location tracking or industry-specific COA: ${$('qboClassTracking').checked ? 'yes' : 'no'}`,
+      `Promo code: ${$('promo').value || '(none)'}`,
+      ``,
+      `--- CALCULATED QUOTE ---`,
+      `Scope: ${$('qboScopeLabel').textContent}`,
+      `One-time total: ${$('qboTotal').textContent}`
+    ];
+  } else if (serviceMode === 'catchup') {
+    summaryLines = [
+      `--- QUOTE INPUTS (Standalone Catch-Up / Cleanup) ---`,
+      `Client / prospect: ${$('clientName').value}`,
+      `Industry: ${$('catchupIndustry').options[$('catchupIndustry').selectedIndex].text}`,
+      `Monthly transactions: ${$('catchupTxns').value}`,
+      `Accounts: ${$('catchupAccounts').value}`,
+      `Months needing cleanup: ${$('catchupMonths').value}`,
+      `Promo code: ${$('promo').value || '(none)'}`,
+      ``,
+      `--- CALCULATED QUOTE ---`,
+      `Applicable tier: ${$('catchupTierLabel').textContent}`,
+      `Monthly-rate equivalent: ${$('catchupRateLine').textContent}`,
+      `One-time project fee: ${$('catchupTotal').textContent}`
+    ];
+  } else {
+    summaryLines = [
+      `--- QUOTE INPUTS (Ongoing Bookkeeping) ---`,
+      `Client / prospect: ${$('clientName').value}`,
+      `Industry: ${$('industry').options[$('industry').selectedIndex].text}`,
+      `Monthly transactions: ${$('txns').value}`,
+      `Accounts: ${$('accounts').value}`,
+      `Annual revenue: $${$('revenue').value}`,
+      `Add-ons: ${['ar','ap','inventory','classloc'].filter(k => $(k).checked).map(k => ADDONS[k].label).join(', ') || 'none'}`,
+      `Sales tax jurisdictions: ${$('taxJur').value}`,
+      `Payroll: ${$('payroll').checked ? `${$('employees').value} employees, ${(document.querySelector('input[name="freq"]:checked')||{}).value}` : 'no'}`,
+      `Advisory: ${getAdvisory().label}`,
+      `Cleanup months: ${$('cleanupMonths').value}`,
+      `Promo code: ${$('promo').value || '(none)'}`,
+      ``,
+      `--- CALCULATED QUOTE ---`,
+      `Monthly recurring: ${$('monthlyTotal').textContent}`,
+      `One-time fees: ${$('onetimeTotal').textContent}`,
+      `First-month invoice: ${$('firstMonth').textContent}`
+    ];
+  }
 
   const payload = {
     'Name': name,
@@ -1154,10 +1639,15 @@ async function sendQuote() {
 // Param shorthand → element id mapping (kept short to keep links compact)
 const SHARE_PARAMS = {
   text:     { name: 'clientName', promo: 'promo' },
-  number:   { txns: 'txns', accts: 'accounts', rev: 'revenue', tax: 'taxJur', emp: 'employees', clean: 'cleanupMonths' },
-  checkbox: { ar: 'ar', ap: 'ap', inv: 'inventory', cls: 'classloc', pr: 'payroll' }
+  number:   { txns: 'txns', accts: 'accounts', rev: 'revenue', tax: 'taxJur', emp: 'employees', clean: 'cleanupMonths',
+              rbank: 'reconBank', rcard: 'reconCards', rloan: 'reconLoans', rvol: 'reconTotalTxns', rcut: 'reconCutoverMonths', qacc: 'qboAccounts',
+              ctxns: 'catchupTxns', cacc: 'catchupAccounts', cmon: 'catchupMonths' },
+  checkbox: { ar: 'ar', ap: 'ap', inv: 'inventory', cls: 'classloc', pr: 'payroll',
+              rneed: 'reconNeedsCutover', qmig: 'qboMigrating', qcls: 'qboClassTracking' }
 };
-const NUMBER_DEFAULTS = { txns: '180', accounts: '3', revenue: '500000', taxJur: '0', employees: '0', cleanupMonths: '0' };
+const NUMBER_DEFAULTS = { txns: '180', accounts: '3', revenue: '500000', taxJur: '0', employees: '0', cleanupMonths: '0',
+                           reconBank: '1', reconCards: '0', reconLoans: '0', reconTotalTxns: '0', reconCutoverMonths: '0', qboAccounts: '2',
+                           catchupTxns: '180', catchupAccounts: '3', catchupMonths: '3' };
 
 function applyUrlParams() {
   const params = new URLSearchParams(window.location.search);
@@ -1179,6 +1669,11 @@ function applyUrlParams() {
     const sel = $('industry');
     if (!isNaN(idx) && idx >= 0 && idx < sel.options.length) sel.selectedIndex = idx;
   }
+  if (params.has('cindustry')) {
+    const cidx = parseInt(params.get('cindustry'), 10);
+    const csel = $('catchupIndustry');
+    if (!isNaN(cidx) && cidx >= 0 && cidx < csel.options.length) csel.selectedIndex = cidx;
+  }
   // Radio groups
   const setRadio = (groupName, val) => {
     const r = document.querySelector(`input[name="${groupName}"][value="${val}"]`);
@@ -1187,13 +1682,14 @@ function applyUrlParams() {
   if (params.has('freq')) setRadio('freq', params.get('freq'));
   if (params.has('prov')) setRadio('provider', params.get('prov'));
   if (params.has('adv'))  setRadio('advisory', params.get('adv'));
+  if (params.has('mode')) setRadio('serviceType', params.get('mode'));
   // Manual tier override
   if (params.has('tier') && TIERS.find(t => t.id === params.get('tier'))) {
     manualTierId = params.get('tier');
   }
 
   // Sync visual states for radio rows and check rows so the UI matches the values
-  ['freqRow', 'providerRow', 'advisoryRow'].forEach(rowId => {
+  ['freqRow', 'providerRow', 'advisoryRow', 'serviceTypeRow'].forEach(rowId => {
     const row = document.getElementById(rowId);
     if (!row) return;
     row.querySelectorAll('label').forEach(x => {
@@ -1231,6 +1727,9 @@ function buildShareLink() {
   if ($('industry').selectedIndex !== 0) {
     params.set('industry', String($('industry').selectedIndex));
   }
+  if ($('catchupIndustry').selectedIndex !== 0) {
+    params.set('cindustry', String($('catchupIndustry').selectedIndex));
+  }
   // Radios — only if not default
   const freq = (document.querySelector('input[name="freq"]:checked') || {}).value;
   if (freq && freq !== 'monthly') params.set('freq', freq);
@@ -1238,6 +1737,8 @@ function buildShareLink() {
   if (prov && prov !== 'gusto') params.set('prov', prov);
   const adv = (document.querySelector('input[name="advisory"]:checked') || {}).value;
   if (adv && adv !== '0') params.set('adv', adv);
+  const svcMode = (document.querySelector('input[name="serviceType"]:checked') || {}).value;
+  if (svcMode && svcMode !== 'bookkeeping') params.set('mode', svcMode);
   // Manual tier override
   if (manualTierId) params.set('tier', manualTierId);
 
@@ -1246,7 +1747,7 @@ function buildShareLink() {
   return qs ? base + '?' + qs : base;
 }
 
-async function copyShareLink() {
+async function copyShareLink(btnEl) {
   const link = buildShareLink();
   let copied = false;
   try {
@@ -1268,14 +1769,14 @@ async function copyShareLink() {
     } catch (e) { copied = false; }
   }
   if (copied) {
-    flashShareBtn('✓ Link copied');
+    flashShareBtn(btnEl, '✓ Link copied');
   } else {
     window.prompt('Copy this shareable link:', link);
   }
 }
 
-function flashShareBtn(msg) {
-  const btn = $('shareBtn');
+function flashShareBtn(btn, msg) {
+  if (!btn) btn = $('shareBtn');
   if (!btn) return;
   const original = btn.textContent;
   btn.textContent = msg;
@@ -1285,6 +1786,7 @@ function flashShareBtn(msg) {
 
 // --- INIT ---
 applyUrlParams();
+syncTogglesFromValues();
 wireAll();
 calc();
 </script>
