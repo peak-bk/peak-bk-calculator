@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Services & Pricing - Peak Bookkeeping</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: #f9f4f0;
+      color: #32201a;
+      line-height: 1.6;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #32201a 0%, #644f46 100%);
+      color: white;
+      text-align: center;
+      padding: 64px 24px 52px;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 14px;
+    }
+    .hero p {
+      font-size: 17px;
+      color: rgba(255,255,255,0.78);
+      max-width: 560px;
+      margin: 0 auto 28px;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(168,140,144,0.25);
+      border: 1px solid rgba(168,140,144,0.6);
+      color: #e5d6d1;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 6px 16px;
+      border-radius: 20px;
+    }
+
+    /* ── LAYOUT ── */
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* ── SECTION LABELS ── */
+    .section-label {
+      text-align: center;
+      padding: 52px 24px 8px;
+    }
+    .section-label h2 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #32201a;
+      margin-bottom: 8px;
+    }
+    .section-label p {
+      font-size: 15px;
+      color: #644f46;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* ── TIER CARDS ── */
+    .tiers {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+      gap: 18px;
+      padding: 28px 20px 12px;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .tier-card {
+      background: white;
+      border-radius: 14px;
+      border: 1.5px solid #e5d6d1;
+      padding: 28px 22px 24px;
+      position: relative;
+      transition: box-shadow 0.18s, transform 0.18s;
+    }
+    .tier-card:hover {
+      box-shadow: 0 8px 28px rgba(0,0,0,0.09);
+      transform: translateY(-2px);
+    }
+    .tier-card.featured {
+      border-color: #32201a;
+      box-shadow: 0 4px 20px rgba(50,32,26,0.12);
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #32201a;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      padding: 4px 14px;
+      border-radius: 12px;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    .tier-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #32201a;
+      margin-bottom: 4px;
+    }
+    .tier-best-for {
+      font-size: 12px;
+      color: #644f46;
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+    .tier-price {
+      margin-bottom: 6px;
+    }
+    .tier-price .amount {
+      font-size: 34px;
+      font-weight: 800;
+      color: #32201a;
+    }
+    .tier-price .per {
+      font-size: 14px;
+      color: #644f46;
+      font-weight: 400;
+    }
+    .tier-txn {
+      font-size: 12px;
+      color: #644f46;
+      margin-bottom: 20px;
+    }
+
+    .tier-divider {
+      height: 1px;
+      background: #f5ebec;
+      margin: 16px 0;
+    }
+
+    .feature-list {
+      list-style: none;
+    }
+    .feature-list li {
+      font-size: 13px;
+      color: #2e3a4a;
+      padding: 4px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.4;
+    }
+    .feature-list li .check {
+      color: #32201a;
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .feature-list li .dash {
+      color: #cbd2da;
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── ADD-ONS ── */
+    .addons-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 12px 20px 16px;
+    }
+    .addons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .addon-card {
+      background: white;
+      border-radius: 12px;
+      border: 1.5px solid #e5d6d1;
+      padding: 18px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .addon-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #32201a;
+      margin-bottom: 2px;
+    }
+    .addon-desc {
+      font-size: 12px;
+      color: #644f46;
+    }
+    .addon-price {
+      font-size: 15px;
+      font-weight: 700;
+      color: #32201a;
+      white-space: nowrap;
+    }
+
+    /* ── WHATS NOT INCLUDED ── */
+    .exclusions {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 12px 20px 16px;
+    }
+    .exclusions-box {
+      background: #fff8ec;
+      border: 1.5px solid #f0ddb0;
+      border-radius: 12px;
+      padding: 22px 26px;
+      margin-top: 18px;
+    }
+    .exclusions-box h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #7a5500;
+      margin-bottom: 10px;
+    }
+    .exclusions-box ul {
+      list-style: none;
+    }
+    .exclusions-box ul li {
+      font-size: 13.5px;
+      color: #5a4010;
+      padding: 3px 0;
+      display: flex;
+      gap: 8px;
+    }
+    .exclusions-box ul li::before {
+      content: '×';
+      color: #c08020;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      text-align: center;
+      padding: 48px 24px 64px;
+    }
+    .cta-section h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #32201a;
+      margin-bottom: 10px;
+    }
+    .cta-section p {
+      font-size: 15px;
+      color: #644f46;
+      margin-bottom: 24px;
+    }
+    .btn-primary {
+      display: inline-block;
+      background: #32201a;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 14px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: #4a2f26; }
+
+    /* ── FOOTNOTE ── */
+    .footnote {
+      text-align: center;
+      font-size: 12px;
+      color: #8a7267;
+      padding: 0 20px 40px;
+    }
+
+    @media (max-width: 640px) {
+      .tiers { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .tier-card { padding: 22px 16px 20px; }
+      .tier-price .amount { font-size: 28px; }
+    }
+    @media (max-width: 420px) {
+      .tiers { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Simple, transparent pricing.</h1>
+  <p>Flat monthly rates. No hourly billing, no surprise invoices. Pick the tier that fits where your business is today.</p>
+  <span class="hero-badge">All prices in USD · Billed monthly</span>
+</div>
+
+<!-- TIER CARDS -->
+<div class="section-label">
+  <h2>Monthly Packages</h2>
+  <p>Every tier includes reconciliation, categorization, and monthly financials. Higher tiers add depth and advisory access.</p>
+</div>
+
+<div class="tiers">
+
+  <!-- STARTER -->
+  <div class="tier-card">
+    <div class="tier-name">Starter</div>
+    <div class="tier-best-for">Solopreneurs · under $75K revenue</div>
+    <div class="tier-price"><span class="amount">$149</span><span class="per">/mo</span></div>
+    <div class="tier-txn">Up to 30 transactions · 1 account</div>
+    <div class="tier-divider"></div>
+    <ul class="feature-list">
+      <li><span class="check">✓</span> Monthly reconciliation</li>
+      <li><span class="check">✓</span> Transaction categorization</li>
+      <li><span class="check">✓</span> Quarterly P&amp;L + Balance Sheet</li>
+      <li><span class="check">✓</span> Chart of accounts maintenance</li>
+      <li><span class="check">✓</span> CPA coordination</li>
+      <li><span class="dash">—</span> Monthly cash flow statement</li>
+      <li><span class="dash">—</span> Email support</li>
+      <li><span class="dash">—</span> Weekly cadence</li>
+      <li><span class="dash">—</span> KPI dashboard</li>
+      <li><span class="dash">—</span> Monthly review call</li>
+    </ul>
+  </div>
+
+  <!-- ESSENTIALS -->
+  <div class="tier-card">
+    <div class="tier-name">Essentials</div>
+    <div class="tier-best-for">Early SMB · under $250K revenue</div>
+    <div class="tier-price"><span class="amount">$249</span><span class="per">/mo</span></div>
+    <div class="tier-txn">Up to 100 transactions · 2 accounts</div>
+    <div class="tier-divider"></div>
+    <ul class="feature-list">
+      <li><span class="check">✓</span> Monthly reconciliation</li>
+      <li><span class="check">✓</span> Transaction categorization</li>
+      <li><span class="check">✓</span> Monthly P&amp;L + Balance Sheet</li>
+      <li><span class="check">✓</span> Chart of accounts maintenance</li>
+      <li><span class="check">✓</span> CPA coordination</li>
+      <li><span class="dash">—</span> Monthly cash flow statement</li>
+      <li><span class="dash">—</span> Email support</li>
+      <li><span class="dash">—</span> Weekly cadence</li>
+      <li><span class="dash">—</span> KPI dashboard</li>
+      <li><span class="dash">—</span> Monthly review call</li>
+    </ul>
+  </div>
+
+  <!-- GROWTH — FEATURED -->
+  <div class="tier-card featured">
+    <div class="popular-badge">★ Most Popular</div>
+    <div class="tier-name">Growth</div>
+    <div class="tier-best-for">Growing SMB · $250K-$1M revenue</div>
+    <div class="tier-price"><span class="amount">$479</span><span class="per">/mo</span></div>
+    <div class="tier-txn">Up to 300 transactions · 4 accounts</div>
+    <div class="tier-divider"></div>
+    <ul class="feature-list">
+      <li><span class="check">✓</span> Monthly reconciliation</li>
+      <li><span class="check">✓</span> Transaction categorization</li>
+      <li><span class="check">✓</span> Monthly P&amp;L + Balance Sheet</li>
+      <li><span class="check">✓</span> Chart of accounts maintenance</li>
+      <li><span class="check">✓</span> CPA coordination</li>
+      <li><span class="check">✓</span> Monthly cash flow statement</li>
+      <li><span class="check">✓</span> Email support for ad-hoc questions</li>
+      <li><span class="dash">—</span> Weekly cadence</li>
+      <li><span class="dash">—</span> KPI dashboard</li>
+      <li><span class="dash">—</span> Monthly review call</li>
+    </ul>
+  </div>
+
+  <!-- PREMIUM -->
+  <div class="tier-card">
+    <div class="tier-name">Premium</div>
+    <div class="tier-best-for">Complex ops · $1M-$5M revenue</div>
+    <div class="tier-price"><span class="amount">$749</span><span class="per">/mo</span></div>
+    <div class="tier-txn">Up to 600 transactions · 6 accounts</div>
+    <div class="tier-divider"></div>
+    <ul class="feature-list">
+      <li><span class="check">✓</span> Monthly reconciliation</li>
+      <li><span class="check">✓</span> Transaction categorization</li>
+      <li><span class="check">✓</span> Monthly P&amp;L + Balance Sheet</li>
+      <li><span class="check">✓</span> Chart of accounts maintenance</li>
+      <li><span class="check">✓</span> CPA coordination</li>
+      <li><span class="check">✓</span> Monthly cash flow statement</li>
+      <li><span class="check">✓</span> Email support for ad-hoc questions</li>
+      <li><span class="check">✓</span> Weekly bookkeeping cadence</li>
+      <li><span class="check">✓</span> KPI dashboard</li>
+      <li><span class="check">✓</span> Monthly financial review call</li>
+    </ul>
+  </div>
+
+  <!-- SCALE -->
+  <div class="tier-card">
+    <div class="tier-name">Scale</div>
+    <div class="tier-best-for">$5M+ revenue · multi-entity · 1K+ txns</div>
+    <div class="tier-price"><span class="amount">$1,499</span><span class="per">/mo</span></div>
+    <div class="tier-txn">Up to 1,000 transactions · 8 accounts</div>
+    <div class="tier-divider"></div>
+    <ul class="feature-list">
+      <li><span class="check">✓</span> Monthly reconciliation</li>
+      <li><span class="check">✓</span> Transaction categorization</li>
+      <li><span class="check">✓</span> Monthly P&amp;L + Balance Sheet</li>
+      <li><span class="check">✓</span> Chart of accounts maintenance</li>
+      <li><span class="check">✓</span> CPA coordination</li>
+      <li><span class="check">✓</span> Monthly cash flow statement</li>
+      <li><span class="check">✓</span> Email support for ad-hoc questions</li>
+      <li><span class="check">✓</span> Weekly bookkeeping cadence</li>
+      <li><span class="check">✓</span> KPI dashboard</li>
+      <li><span class="check">✓</span> Monthly financial review call</li>
+      <li><span class="check">✓</span> Multi-entity / consolidation reporting</li>
+      <li><span class="check">✓</span> Dedicated bookkeeper point of contact</li>
+    </ul>
+  </div>
+
+</div><!-- /tiers -->
+
+<!-- ADD-ONS -->
+<div class="section-label">
+  <h2>Add-On Services</h2>
+  <p>Stack onto any package. Priced separately and itemized on your monthly invoice.</p>
+</div>
+
+<div class="addons-section">
+  <div class="addons-grid">
+
+    <div class="addon-card">
+      <div>
+        <div class="addon-name">Accounts Receivable</div>
+        <div class="addon-desc">Invoice tracking, aging reports, payment reminders</div>
+      </div>
+      <div class="addon-price">+$95/mo</div>
+    </div>
+
+    <div class="addon-card">
+      <div>
+        <div class="addon-name">Accounts Payable / Bill Pay</div>
+        <div class="addon-desc">Vendor bill management via QuickBooks Bill Pay</div>
+      </div>
+      <div class="addon-price">+$140/mo</div>
+    </div>
+
+    <div class="addon-card">
+      <div>
+        <div class="addon-name">Inventory Tracking</div>
+        <div class="addon-desc">Product-based businesses with cost of goods</div>
+      </div>
+      <div class="addon-price">+$160/mo</div>
+    </div>
+
+    <div class="addon-card">
+      <div>
+        <div class="addon-name">Class / Location Tracking</div>
+        <div class="addon-desc">Segment P&amp;L by department, location, or project</div>
+      </div>
+      <div class="addon-price">+$80/mo</div>
+    </div>
+
+    <div class="addon-card">
+      <div>
+        <div class="addon-name">Sales Tax Filing</div>
+        <div class="addon-desc">Per jurisdiction, monthly or quarterly filing</div>
+      </div>
+      <div class="addon-price">+$60/mo</div>
+    </div>
+
+    <div class="addon-card">
+      <div>
+        <div class="addon-name">Payroll Oversight</div>
+        <div class="addon-desc">Setup, oversight, and monthly reconciliation via Gusto</div>
+      </div>
+      <div class="addon-price">From $60/mo</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- EXCLUSIONS -->
+<div class="section-label" style="padding-top: 36px;">
+  <h2>What's Not Included</h2>
+</div>
+
+<div class="exclusions">
+  <div class="exclusions-box">
+    <h3>Outside the scope of bookkeeping services</h3>
+    <ul>
+      <li>Tax preparation, tax returns, or tax advice (referred to your CPA or EA)</li>
+      <li>Audit, review, or SSARS compilation engagements</li>
+      <li>Legal advice or document drafting</li>
+      <li>Forensic accounting or fraud investigation</li>
+      <li>Investment or financial planning advice</li>
+      <li>Reasonable compensation determinations (S-Corp), referred to your CPA</li>
+    </ul>
+  </div>
+  <p style="font-size: 12.5px; color: #8a7267; margin-top: 12px; text-align: center;">
+    Peak Bookkeeping is not a CPA firm. We're happy to coordinate directly with your tax professional.
+  </p>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <h2>Not sure which tier fits?</h2>
+  <p>Use the pricing calculator to get an instant estimate based on your transaction volume and business type.</p>
+  <a href="#" class="btn-primary">Get my instant quote</a>
+</div>
+
+<div class="footnote">
+  Rates shown are base rates for standard complexity. Industries with higher bookkeeping complexity (real estate, e-commerce, restaurants, trades) carry a small complexity adjustment, reflected in your calculator quote.<br>
+  All engagements include a one-time onboarding and setup fee. Catch-up or cleanup work for prior periods is quoted separately.
+</div>
+
+</body>
+</html>
