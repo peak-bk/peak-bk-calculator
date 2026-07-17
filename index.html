@@ -685,6 +685,20 @@
         <input type="number" id="reconCutoverMonths" min="0" step="1" value="0">
         <div class="hint">Elapsed months since your last confirmed-accurate loan balance.</div>
       </div>
+      <label class="check" id="reconComplexBSWrap" style="display:none; margin-top:10px">
+        <input type="checkbox" id="reconComplexBS">
+        <span class="addon-body">
+          <span><b>Also carries inventory, meaningful A/R or A/P, or customer/vendor deposits</b></span>
+          <span class="scope">These don't have a bank-style statement to check against, verifying them means an aging report cross-check, a physical inventory count, or tracing to the actual contracts/receipts. Adds to the one-time fee only, not the ongoing monthly cost.</span>
+        </span>
+      </label>
+      <label class="check" id="reconArApUnknownWrap" style="display:none; margin-top:10px">
+        <input type="checkbox" id="reconArApUnknown">
+        <span class="addon-body">
+          <span><b>My A/R or A/P has old, unclear, or possibly duplicate items</b></span>
+          <span class="scope">This can't be instant-quoted, the real scope only shows up once it's actually reviewed. Not included in the total below, I'll follow up with a separate not-to-exceed estimate after a look at your file.</span>
+        </span>
+      </label>
     </div>
 
     <div class="panel" id="qboSetupPanel" style="display:none">
@@ -707,6 +721,15 @@
           <span><b>Need class/location tracking or an industry-specific chart of accounts</b></span>
         </span>
       </label>
+      <div class="field" style="margin-top:14px">
+        <label class="lbl">Add live QBO training?</label>
+        <div class="radio-row" id="qboTrainingRow" style="flex-direction:column">
+          <label class="selected"><input type="radio" name="qboTraining" value="none" checked> No training, just the setup</label>
+          <label><input type="radio" name="qboTraining" value="basic"> Basic training (1 session, 60 to 90 min): +$175</label>
+          <label><input type="radio" name="qboTraining" value="full"> Full training (2 sessions): +$325</label>
+        </div>
+        <div class="hint">Live 1-on-1 Zoom sessions. Basic covers QBO navigation, transaction entry, and running reports. Full adds invoicing, receiving payments, and bank feed basics. Recording provided so you can rewatch.</div>
+      </div>
     </div>
 
     <div class="panel" id="catchupPanel" style="display:none">
@@ -830,9 +853,14 @@
 
         <div class="quote-section-label">One-Time Fees</div>
         <div class="qline" id="reconCutoverLineWrap" style="display:none"><span>Balance sheet get-started fee</span><span id="reconCutoverLine">$0</span></div>
+        <div class="qline" id="reconComplexityLineWrap" style="display:none"><span>Inventory / A/R / A/P / deposits verification</span><span id="reconComplexityLine">$0</span></div>
         <div class="qline" id="reconLoanCatchupLineWrap" style="display:none"><span>Loan YTD catch-up</span><span id="reconLoanCatchupLine">$0</span></div>
         <div class="qline" id="reconOnetimePromoLineWrap" style="display:none"><span>Promo discount (one-time)</span><span id="reconOnetimePromoLine">$0</span></div>
         <div class="qline subtotal"><span>One-time total</span><span id="reconOnetimeTotal">$0</span></div>
+
+        <div id="reconArApNoteWrap" style="display:none; background: #fdf1ef; border: 1px solid #e8c3bb; border-radius: 8px; margin: 16px 0 4px; padding: 12px 14px; font-size: 12.5px; color: #6b3d33; line-height: 1.5;">
+          <strong style="color: #8a3a2c;">A/R & A/P cleanup:</strong> not included in the total above. This gets scoped and priced separately after Madison reviews the actual file, with a not-to-exceed estimate before any of that work starts.
+        </div>
 
         <div style="background: #fffbec; border: 1px solid #f0ddb0; border-radius: 8px; margin: 16px 0 4px; padding: 12px 14px; font-size: 12.5px; color: #6b5a2a; line-height: 1.5;">
           <strong style="color: #7a5500;">Heads up:</strong> This is a new service line. The estimate is a starting point built from industry benchmarks for oversight/review-style services, not yet measured against real engagement time. Your final rate is confirmed directly with Madison before anything is finalized.
@@ -857,6 +885,7 @@
         <div class="quote-section-label first">One-Time Setup Fee</div>
         <div class="qline"><span>Scope</span><span id="qboScopeLabel">Simple</span></div>
         <div class="qline"><span>Base fee</span><span id="qboBaseLine">$0</span></div>
+        <div class="qline" id="qboTrainingLineWrap" style="display:none"><span id="qboTrainingLabel">Training</span><span id="qboTrainingLine">$0</span></div>
         <div class="qline" id="qboPromoLineWrap" style="display:none"><span>Promo discount</span><span id="qboPromoLine">$0</span></div>
         <div class="qline total"><span>One-time total</span><span id="qboTotal">$0</span></div>
 
@@ -1035,12 +1064,15 @@ const RECON_CUTOVER_BASE = 300;   // base Transition Reconciliation fee
 const RECON_CUTOVER_PER_ACCOUNT = 60;   // added per account above the first, capped
 const RECON_CUTOVER_MAX = 800;
 const RECON_LOAN_CATCHUP_HR_PER_MONTH = 0.25;   // per loan, per elapsed month
+const RECON_CUTOVER_COMPLEXITY_HOURS = 2;   // extra hours for A/R, A/P, inventory, or deposits verification at cutover (aging report cross-check, physical count, tracing to source docs) — rough estimate, not yet calibrated
 
 // New QBO Setup — banded by account count / migration / complexity.
 // See OneOff_Projects_Reference_INTERNAL.docx Section 1.
 const QBO_SIMPLE_MIN = 240, QBO_SIMPLE_MAX = 350;
 const QBO_STANDARD_MIN = 400, QBO_STANDARD_MAX = 600;
 const QBO_COMPLEX_MIN = 600, QBO_COMPLEX_MAX = 900;
+const QBO_TRAINING_BASIC = 175;
+const QBO_TRAINING_FULL = 325;
 
 // --- HELPERS ---
 const $ = id => document.getElementById(id);
@@ -1308,20 +1340,28 @@ function calcReconReview() {
   const needsCutover = $('reconNeedsCutover').checked;
   $('reconCutoverMonthsWrap').style.display = needsCutover ? 'block' : 'none';
   if (!needsCutover) $('reconCutoverMonths').value = 0;
+  $('reconComplexBSWrap').style.display = needsCutover ? 'flex' : 'none';
+  if (!needsCutover) $('reconComplexBS').checked = false;
+  $('reconArApUnknownWrap').style.display = needsCutover ? 'flex' : 'none';
+  if (!needsCutover) $('reconArApUnknown').checked = false;
+  $('reconArApNoteWrap').style.display = (needsCutover && $('reconArApUnknown').checked) ? 'block' : 'none';
 
-  let cutoverFee = 0, loanCatchupFee = 0;
+  let cutoverFee = 0, loanCatchupFee = 0, complexityFee = 0;
   if (needsCutover) {
     const totalAccounts = bank + cards + loans;
     cutoverFee = Math.min(RECON_CUTOVER_MAX, RECON_CUTOVER_BASE + Math.max(0, totalAccounts - 1) * RECON_CUTOVER_PER_ACCOUNT);
     const cutoverMonths = Math.max(0, parseInt($('reconCutoverMonths').value) || 0);
     loanCatchupFee = loans * cutoverMonths * RECON_LOAN_CATCHUP_HR_PER_MONTH * RECON_HOURLY_RATE;
+    if ($('reconComplexBS').checked) complexityFee = RECON_CUTOVER_COMPLEXITY_HOURS * RECON_HOURLY_RATE;
   }
   $('reconCutoverLineWrap').style.display = needsCutover ? 'flex' : 'none';
   $('reconCutoverLine').textContent = fmt(cutoverFee);
+  $('reconComplexityLineWrap').style.display = (needsCutover && complexityFee > 0) ? 'flex' : 'none';
+  $('reconComplexityLine').textContent = fmt(complexityFee);
   $('reconLoanCatchupLineWrap').style.display = (needsCutover && loanCatchupFee > 0) ? 'flex' : 'none';
   $('reconLoanCatchupLine').textContent = fmt(loanCatchupFee);
 
-  const onetimePre = cutoverFee + loanCatchupFee;
+  const onetimePre = cutoverFee + complexityFee + loanCatchupFee;
   const onetimePromo = onetimePre * promoRate;
   $('reconOnetimePromoLineWrap').style.display = (promoRate > 0 && onetimePre > 0) ? 'flex' : 'none';
   $('reconOnetimePromoLine').textContent = '−' + fmt(onetimePromo);
@@ -1350,11 +1390,29 @@ function calcQboSetup() {
   $('qboScopeLabel').textContent = scope;
   $('qboBaseLine').textContent = fmt(base);
 
-  const promoRate = applyPromo(base);
-  const promoAmt = base * promoRate;
+  // Training add-on
+  const trainingRadio = document.querySelector('input[name="qboTraining"]:checked');
+  const trainingLevel = trainingRadio ? trainingRadio.value : 'none';
+  let trainingCost = 0;
+  let trainingLabel = '';
+  if (trainingLevel === 'basic') { trainingCost = QBO_TRAINING_BASIC; trainingLabel = 'Basic training (1 session)'; }
+  else if (trainingLevel === 'full') { trainingCost = QBO_TRAINING_FULL; trainingLabel = 'Full training (2 sessions)'; }
+
+  const trainingWrap = $('qboTrainingLineWrap');
+  if (trainingCost > 0) {
+    trainingWrap.style.display = 'flex';
+    $('qboTrainingLabel').textContent = trainingLabel;
+    $('qboTrainingLine').textContent = fmt(trainingCost);
+  } else {
+    trainingWrap.style.display = 'none';
+  }
+
+  const subtotal = base + trainingCost;
+  const promoRate = applyPromo(subtotal);
+  const promoAmt = subtotal * promoRate;
   $('qboPromoLineWrap').style.display = promoRate > 0 ? 'flex' : 'none';
   $('qboPromoLine').textContent = '−' + fmt(promoAmt);
-  $('qboTotal').textContent = fmt(base - promoAmt);
+  $('qboTotal').textContent = fmt(subtotal - promoAmt);
 }
 
 function calcCatchup() {
@@ -1462,6 +1520,7 @@ function wireAll() {
   wireRadios('advisoryRow');
   wireRadios('contactRow');
   wireRadios('startRow');
+  wireRadios('qboTrainingRow');
   wireChecks();
   wireTierCards();
   document.querySelectorAll('input, select, textarea').forEach(el => {
@@ -1501,6 +1560,8 @@ function resetAll() {
   $('reconTotalTxns').value = 0;
   $('reconNeedsCutover').checked = false;
   $('reconCutoverMonths').value = 0;
+  $('reconComplexBS').checked = false;
+  $('reconArApUnknown').checked = false;
   $('qboAccounts').value = 2;
   $('qboMigrating').checked = false;
   $('qboClassTracking').checked = false;
@@ -1539,6 +1600,8 @@ async function sendQuote() {
       `Total bank+card transactions (if entered): ${$('reconTotalTxns').value}`,
       `Needs one-time get-started cutover: ${$('reconNeedsCutover').checked ? 'yes' : 'no'}`,
       `Months needing loan verification: ${$('reconCutoverMonths').value}`,
+      `Also carries inventory/A-R/A-P/deposits needing verification: ${$('reconComplexBS').checked ? 'yes' : 'no'}`,
+      `A/R or A/P has old/unclear/duplicate items (scoped separately): ${$('reconArApUnknown').checked ? 'yes' : 'no'}`,
       `Promo code: ${$('promo').value || '(none)'}`,
       ``,
       `--- CALCULATED QUOTE ---`,
@@ -1643,7 +1706,7 @@ const SHARE_PARAMS = {
               rbank: 'reconBank', rcard: 'reconCards', rloan: 'reconLoans', rvol: 'reconTotalTxns', rcut: 'reconCutoverMonths', qacc: 'qboAccounts',
               ctxns: 'catchupTxns', cacc: 'catchupAccounts', cmon: 'catchupMonths' },
   checkbox: { ar: 'ar', ap: 'ap', inv: 'inventory', cls: 'classloc', pr: 'payroll',
-              rneed: 'reconNeedsCutover', qmig: 'qboMigrating', qcls: 'qboClassTracking' }
+              rneed: 'reconNeedsCutover', rcplx: 'reconComplexBS', rarap: 'reconArApUnknown', qmig: 'qboMigrating', qcls: 'qboClassTracking' }
 };
 const NUMBER_DEFAULTS = { txns: '180', accounts: '3', revenue: '500000', taxJur: '0', employees: '0', cleanupMonths: '0',
                            reconBank: '1', reconCards: '0', reconLoans: '0', reconTotalTxns: '0', reconCutoverMonths: '0', qboAccounts: '2',
