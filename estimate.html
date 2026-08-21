@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Peak Bookkeeping — Quick Pricing Estimate</title>
+<style>
+  :root {
+    --bg: #f9f4f0;
+    --card: #ffffff;
+    --ink: #201714;
+    --ink-2: #32201a;
+    --muted: #644f46;
+    --rose: #f5ebec;
+    --rose-2: #faf4f0;
+    --accent: #a88c90;
+    --line: #e5d6d1;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 32px 24px 64px; }
+  header.hero {
+    background: var(--ink-2);
+    color: #fff;
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  header.hero .logo-block {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  header.hero img { display: block; width: 180px; height: auto; }
+  header.hero .titles { flex: 1; min-width: 260px; }
+  header.hero h1 {
+    font-family: 'Helvetica Neue', sans-serif;
+    font-weight: 300;
+    font-size: 26px;
+    margin: 0 0 6px;
+    letter-spacing: 0.2px;
+  }
+  header.hero p { margin: 0; opacity: 0.9; font-size: 13px; max-width: 560px; }
+
+  .panel {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 22px 22px 18px;
+    border: 1px solid var(--line);
+    margin-bottom: 18px;
+  }
+  .panel h2 {
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    margin: 0 0 16px;
+    color: var(--ink-2);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .field { margin-bottom: 14px; }
+  .field label.lbl { display: block; font-weight: 700; color: var(--ink); margin-bottom: 4px; font-size: 13px; }
+  .field .hint { color: var(--muted); font-size: 11px; margin-top: 4px; }
+  .field input[type=text],
+  .field input[type=number],
+  .field input[type=email],
+  .field input[type=tel],
+  .field select,
+  .field textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 9px 11px;
+    font: inherit;
+    color: var(--ink);
+    background: #fff;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--ink-2);
+    box-shadow: 0 0 0 3px rgba(50,32,26,0.10);
+  }
+  .field textarea { min-height: 70px; resize: vertical; }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 520px) { .row-2 { grid-template-columns: 1fr; } }
+
+  .radio-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .radio-row label {
+    flex: 1 1 calc(50% - 4px);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    background: #fff;
+    font-size: 13px;
+    transition: border-color .15s, background .15s;
+  }
+  .radio-row label.selected { border-color: var(--ink-2); background: var(--rose); }
+  .radio-row input { margin-right: 6px; }
+  .check {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    font-size: 13px;
+  }
+  .check:hover { border-color: var(--accent); }
+  .check input { margin-top: 2px; }
+  .check.selected { background: var(--rose); border-color: var(--ink-2); }
+  .check .addon-body { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+  .check .addon-body .scope { color: var(--muted); font-size: 11px; line-height: 1.4; margin-top: 3px; }
+
+  /* Result */
+  .result {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .result .result-head {
+    background: var(--ink-2);
+    color: #fff;
+    padding: 14px 18px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .result-body { padding: 18px; }
+  .range-block { margin-bottom: 18px; }
+  .range-block:last-child { margin-bottom: 0; }
+  .range-label { font-size: 11px; letter-spacing: 1.2px; color: var(--accent); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+  .range-value {
+    font-family: 'Helvetica Neue', sans-serif;
+    font-weight: 300;
+    font-size: 32px;
+    color: var(--ink-2);
+    line-height: 1.1;
+  }
+  .range-value small { font-size: 13px; color: var(--muted); font-weight: 400; margin-left: 4px; }
+  .range-note { color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.5; }
+
+  .send-block {
+    background: var(--ink-2);
+    color: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 8px;
+  }
+  .send-block h2 { color: #fff; margin-top: 0; font-size: 15px; }
+  .send-block p { opacity: 0.92; margin-bottom: 18px; font-size: 13px; }
+  .send-block .panel-inner {
+    background: #fff;
+    color: var(--ink);
+    border-radius: 10px;
+    padding: 22px;
+  }
+  .btn {
+    display: inline-block;
+    background: var(--ink-2);
+    color: #fff;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 8px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background .15s, transform .05s;
+  }
+  .btn:hover { background: #4a2f26; }
+  .btn:active { transform: translateY(1px); }
+  footer.fine {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 28px;
+    line-height: 1.6;
+  }
+  footer.fine a { color: var(--ink-2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="logo-block">
+    <img src="peak-bookkeeping-logo.png" alt="Peak Bookkeeping">
+  </div>
+  <div class="titles">
+    <h1>Get Your Estimate</h1>
+    <p>Answer a few quick questions for an instant price range. Every business's books are a little different, so after a quick call and a look at your actual file, I'll confirm the exact number for your proposal.</p>
+  </div>
+</header>
+
+<div class="panel">
+  <h2>What are you looking for?</h2>
+  <div class="radio-row" id="pathRow">
+    <label class="selected"><input type="radio" name="path" value="ongoing" checked> Ongoing monthly bookkeeping</label>
+    <label><input type="radio" name="path" value="catchup"> One-time catch-up / cleanup only</label>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>A little about your books</h2>
+  <div class="field">
+    <label class="lbl" for="industry">Industry</label>
+    <select id="industry">
+      <option value="1.00">Service / Consulting / Professional</option>
+      <option value="1.10">Real Estate / Agency</option>
+      <option value="1.20">Nonprofit (grant tracking)</option>
+      <option value="1.25">Trades / Construction (WIP)</option>
+      <option value="1.20">Restaurant / Hospitality</option>
+      <option value="1.25">Retail (POS / inventory / sales tax)</option>
+      <option value="1.30">E-commerce (multi-channel / inventory)</option>
+      <option value="1.20">PT / Healthcare (cash-pay only)</option>
+      <option value="1.35">PT / Healthcare (insurance-based)</option>
+      <option value="1.50">PT / Healthcare (workers' comp / PIP-heavy)</option>
+    </select>
+  </div>
+  <div class="row-2">
+    <div class="field">
+      <label class="lbl" for="txns">Monthly transactions (rough is fine)</label>
+      <input type="number" id="txns" min="0" step="10" value="150">
+    </div>
+    <div class="field">
+      <label class="lbl" for="accounts">Number of financial accounts</label>
+      <input type="number" id="accounts" min="1" step="1" value="3">
+      <div class="hint">Checking, savings, credit cards, loans, merchant accounts.</div>
+    </div>
+  </div>
+
+  <div class="field" id="ongoingCleanupWrap">
+    <label class="check">
+      <input type="checkbox" id="needsCleanup">
+      <span class="addon-body">
+        <span><b>My books need catch-up or cleanup before ongoing bookkeeping starts</b></span>
+        <span class="scope">Check this if your books aren't current, or a prior period needs correcting.</span>
+      </span>
+    </label>
+    <div class="field" id="cleanupMonthsWrap" style="display:none; margin-top:10px">
+      <label class="lbl" for="cleanupMonths">Months needing catch-up</label>
+      <input type="number" id="cleanupMonths" min="0" step="1" value="3">
+    </div>
+  </div>
+
+  <div class="field" id="catchupMonthsWrap" style="display:none">
+    <label class="lbl" for="catchupMonths">Months needing catch-up</label>
+    <input type="number" id="catchupMonths" min="1" step="1" value="3">
+  </div>
+</div>
+
+<div class="result">
+  <div class="result-head"><span id="resultHeadLabel">Your Estimated Range</span></div>
+  <div class="result-body">
+    <div class="range-block" id="monthlyRangeBlock">
+      <div class="range-label">Monthly bookkeeping</div>
+      <div class="range-value" id="monthlyRangeValue">$0 – $0<small>/mo</small></div>
+      <div class="range-note">Covers your applicable tier plus industry complexity. Common add-ons like payroll, A/R/A/P management, class tracking, or sales tax filing are scoped on your call and can add to this range.</div>
+    </div>
+    <div class="range-block" id="onetimeRangeBlock">
+      <div class="range-label" id="onetimeRangeLabel">One-time onboarding</div>
+      <div class="range-value" id="onetimeRangeValue">$0 – $0</div>
+      <div class="range-note" id="onetimeRangeNote">Covers account setup and opening balance verification. The high end assumes a balance-sheet true-up or extra complexity (inventory, A/R/A/P, deposits) turns up once I'm in the file, if your books are clean this often lands at the low end.</div>
+    </div>
+  </div>
+</div>
+
+<div class="send-block">
+  <h2>Want the exact number?</h2>
+  <p>Send me your info and I'll follow up within three business days to schedule a quick call, take a look at your actual books, and firm up your proposal.</p>
+  <div class="panel-inner">
+    <div class="row-2">
+      <div class="field">
+        <label class="lbl" for="contactName">Your name *</label>
+        <input type="text" id="contactName" required>
+      </div>
+      <div class="field">
+        <label class="lbl" for="contactBiz">Business name</label>
+        <input type="text" id="contactBiz">
+      </div>
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label class="lbl" for="contactEmail">Email *</label>
+        <input type="email" id="contactEmail" required>
+      </div>
+      <div class="field">
+        <label class="lbl" for="contactPhone">Phone (optional)</label>
+        <input type="tel" id="contactPhone">
+      </div>
+    </div>
+    <div class="field">
+      <label class="lbl" for="notes">Anything else I should know? (optional)</label>
+      <textarea id="notes"></textarea>
+    </div>
+    <button class="btn" id="sendEstimateBtn" onclick="sendEstimate()">Send me my range & book a call →</button>
+    <div class="hint" style="margin-top:10px;color:rgba(100,79,70,0.85)">No obligation. I'll respond within three business days.</div>
+    <div id="estimateStatus"></div>
+  </div>
+</div>
+
+<footer class="fine">
+  Estimates reflect 2025–2026 industry norms and are a starting point, not a final quote. &copy; Peak Bookkeeping · <a href="mailto:madison@peak-bk.com">madison@peak-bk.com</a>
+</footer>
+
+</div>
+
+<script src="pricing-constants.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const fmt = n => '$' + Math.round(n).toLocaleString();
+
+function wireRadios(rowId) {
+  const row = document.getElementById(rowId);
+  if (!row) return;
+  row.querySelectorAll('label').forEach(l => {
+    l.addEventListener('click', () => {
+      setTimeout(() => {
+        row.querySelectorAll('label').forEach(x => {
+          const input = x.querySelector('input[type="radio"]');
+          x.classList.toggle('selected', input && input.checked);
+        });
+        calc();
+      }, 0);
+    });
+  });
+}
+function wireChecks() {
+  document.querySelectorAll('.check').forEach(l => {
+    const cb = l.querySelector('input[type="checkbox"]');
+    if (!cb) return;
+    const sync = () => l.classList.toggle('selected', cb.checked);
+    cb.addEventListener('change', sync);
+    sync();
+  });
+}
+
+function getPath() {
+  return (document.querySelector('input[name="path"]:checked') || {}).value || 'ongoing';
+}
+
+function calc() {
+  const path = getPath();
+  $('ongoingCleanupWrap').style.display = path === 'ongoing' ? 'block' : 'none';
+  $('catchupMonthsWrap').style.display = path === 'catchup' ? 'block' : 'none';
+  $('monthlyRangeBlock').style.display = path === 'ongoing' ? 'block' : 'none';
+  $('resultHeadLabel').textContent = path === 'ongoing' ? 'Your Estimated Range' : 'Your Estimated Range (One-Time Project)';
+
+  const txns = Math.max(0, parseInt($('txns').value) || 0);
+  const accts = Math.max(1, parseInt($('accounts').value) || 1);
+  const industryMult = parseFloat($('industry').value);
+  const tier = pickTier(txns, accts);
+  const extraTxnCost = Math.max(0, txns - tier.txns) * EXTRA_TXN_RATE;
+  const extraAcctCost = Math.max(0, accts - tier.accts) * EXTRA_ACCT_RATE;
+  const baseAdjusted = (tier.price + extraTxnCost + extraAcctCost) * industryMult;
+  const complexityBump = RECON_CUTOVER_BASE + RECON_CUTOVER_COMPLEXITY_HOURS * RECON_HOURLY_RATE;
+
+  if (path === 'ongoing') {
+    const monthlyLow = baseAdjusted;
+    const monthlyHigh = baseAdjusted * 1.3;
+    $('monthlyRangeValue').innerHTML = `${fmt(monthlyLow)} – ${fmt(monthlyHigh)}<small>/mo</small>`;
+
+    const needsCleanup = $('needsCleanup').checked;
+    $('cleanupMonthsWrap').style.display = needsCleanup ? 'block' : 'none';
+    if (!needsCleanup) $('cleanupMonths').value = 0;
+    const cleanupMonths = Math.max(0, parseInt($('cleanupMonths').value) || 0);
+
+    let onetimeLow = tier.onboarding;
+    let onetimeHigh = tier.onboarding + complexityBump;
+    $('onetimeRangeLabel').textContent = 'One-time onboarding';
+    $('onetimeRangeNote').textContent = 'Covers account setup and opening balance verification. The high end assumes a balance-sheet true-up or extra complexity (inventory, A/R/A/P, deposits) turns up once I’m in the file, if your books are clean this often lands at the low end.';
+
+    if (cleanupMonths > 0) {
+      const cleanupLow = Math.max(CLEANUP_MIN, baseAdjusted * cleanupMonths * CLEANUP_DISCOUNT);
+      const cleanupHigh = cleanupLow + complexityBump;
+      onetimeLow = tier.onboarding + cleanupLow;
+      onetimeHigh = tier.onboarding + cleanupHigh;
+      $('onetimeRangeLabel').textContent = 'One-time onboarding + catch-up';
+      $('onetimeRangeNote').textContent = 'Covers account setup, opening balance verification, and catching up ' + cleanupMonths + ' month(s) of books. The high end assumes some added complexity (a balance-sheet true-up, A/R/A/P condition) turns up once I’m in the file.';
+    }
+    $('onetimeRangeValue').textContent = `${fmt(onetimeLow)} – ${fmt(onetimeHigh)}`;
+  } else {
+    const catchupMonths = Math.max(1, parseInt($('catchupMonths').value) || 1);
+    const monthlyRateEquivalent = baseAdjusted;
+    const catchupLow = Math.max(CLEANUP_MIN, monthlyRateEquivalent * catchupMonths * CLEANUP_DISCOUNT);
+    const catchupHigh = catchupLow + complexityBump;
+    $('onetimeRangeLabel').textContent = 'One-time catch-up / cleanup project';
+    $('onetimeRangeNote').textContent = 'No ongoing monthly service included. The high end assumes the balance sheet right before this period also needs a true-up, and/or some A/R, A/P, or inventory complexity turns up once I’m in the file.';
+    $('onetimeRangeValue').textContent = `${fmt(catchupLow)} – ${fmt(catchupHigh)}`;
+  }
+}
+
+async function sendEstimate() {
+  const name = $('contactName').value.trim();
+  const email = $('contactEmail').value.trim();
+  if (!name || !email) {
+    alert('Please fill in your name and email so I can follow up.');
+    return;
+  }
+  const path = getPath();
+  const summaryLines = [
+    `--- QUICK ESTIMATE REQUEST ---`,
+    `Looking for: ${path === 'ongoing' ? 'Ongoing monthly bookkeeping' : 'One-time catch-up / cleanup only'}`,
+    `Industry: ${$('industry').options[$('industry').selectedIndex].text}`,
+    `Monthly transactions: ${$('txns').value}`,
+    `Accounts: ${$('accounts').value}`,
+  ];
+  if (path === 'ongoing') {
+    summaryLines.push(`Needs catch-up before ongoing starts: ${$('needsCleanup').checked ? 'yes, ' + $('cleanupMonths').value + ' month(s)' : 'no'}`);
+  } else {
+    summaryLines.push(`Months needing catch-up: ${$('catchupMonths').value}`);
+  }
+  summaryLines.push(``, `--- ESTIMATED RANGE SHOWN ---`);
+  if (path === 'ongoing') {
+    summaryLines.push(`Monthly: ${$('monthlyRangeValue').textContent}`);
+  }
+  summaryLines.push(`One-time: ${$('onetimeRangeValue').textContent}`);
+
+  const payload = {
+    'Name': name,
+    'Business': $('contactBiz').value,
+    'Email': email,
+    'Phone': $('contactPhone').value,
+    'Notes': $('notes').value,
+    'Estimate details': summaryLines.join('\n'),
+    '_replyto': email,
+    '_subject': `Quick estimate request from ${name}`
+  };
+
+  const statusEl = $('estimateStatus');
+  const btn = $('sendEstimateBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+  if (statusEl) statusEl.innerHTML = '';
+
+  try {
+    const response = await fetch('https://formspree.io/f/mjgznrrk', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (response.ok) {
+      if (statusEl) {
+        statusEl.innerHTML = '<div style="color:#1f6f3f;padding:12px 14px;background:#e8f5e9;border-radius:8px;margin-top:10px;font-size:14px">Thanks! I\'ve got your info and will follow up within 3 business days to schedule a quick call.</div>';
+      }
+      if (btn) { btn.textContent = 'Sent ✓'; }
+    } else {
+      throw new Error('Submission failed');
+    }
+  } catch (err) {
+    if (statusEl) {
+      statusEl.innerHTML = '<div style="color:#a23a2c;padding:12px 14px;background:#fbe9e7;border-radius:8px;margin-top:10px;font-size:14px">Something went wrong sending your info. Please email madison@peak-bk.com directly and I will respond as soon as I can.</div>';
+    }
+    if (btn) { btn.disabled = false; btn.textContent = 'Send me my range & book a call →'; }
+  }
+}
+
+wireRadios('pathRow');
+wireChecks();
+document.querySelectorAll('input, select, textarea').forEach(el => {
+  el.addEventListener('input', calc);
+  el.addEventListener('change', calc);
+});
+calc();
+</script>
+</body>
+</html>
