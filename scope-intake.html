@@ -148,6 +148,29 @@
     font-family: inherit;
   }
   .btn:hover { opacity: 0.9; }
+  .btn.secondary {
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.35);
+  }
+  .btn.tertiary {
+    background: transparent;
+    color: #fff;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    text-decoration: underline;
+    opacity: 0.85;
+  }
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
   .btn.copied { background: #4a7856; }
   .copy-status {
     margin-top: 14px;
@@ -163,6 +186,85 @@
     margin-top: 20px;
     padding: 0 20px;
   }
+
+  /* --- Preview mode --- */
+  .preview-wrap {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 32px 36px;
+    margin-bottom: 18px;
+  }
+  .preview-wrap h2.preview-title {
+    margin: 0 0 4px;
+    font-size: 20px;
+    color: var(--ink-2);
+    letter-spacing: 0.4px;
+  }
+  .preview-wrap .preview-meta {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--accent);
+  }
+  .preview-section {
+    margin-bottom: 22px;
+    page-break-inside: avoid;
+  }
+  .preview-section h3 {
+    margin: 0 0 10px;
+    font-size: 12.5px;
+    color: var(--accent);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .preview-row {
+    display: flex;
+    padding: 7px 0;
+    border-bottom: 1px dotted var(--line);
+    font-size: 13.5px;
+    gap: 16px;
+  }
+  .preview-row:last-child { border-bottom: 0; }
+  .preview-label {
+    flex: 1;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .preview-value {
+    flex: 1;
+    color: var(--ink);
+    font-weight: 600;
+    text-align: right;
+    word-break: break-word;
+  }
+  .preview-notes {
+    color: var(--muted);
+    font-size: 11.5px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    line-height: 1.55;
+  }
+
+  /* --- Print styles --- */
+  @media print {
+    body { background: #fff; }
+    .wrap { padding: 0; max-width: 100%; }
+    header.hero, .submit-panel, .footer-note, #formSection { display: none !important; }
+    .preview-wrap {
+      border: 0;
+      padding: 0;
+      margin: 0;
+      box-shadow: none;
+    }
+    .preview-wrap h2.preview-title { font-size: 18px; }
+    .preview-section { page-break-inside: avoid; }
+    .preview-row { font-size: 12px; padding: 5px 0; }
+    @page { margin: 0.6in; }
+  }
 </style>
 </head>
 <body>
@@ -173,6 +275,7 @@
   <p>Thanks for taking the time to fill this out. The more accurate this is, the more accurate your written proposal will be. Nothing here is a commitment - it just helps me price the engagement correctly instead of guessing. Takes about 8 to 10 minutes. If you&#x27;re not sure of a number, best-guess is fine (or leave it blank and I&#x27;ll estimate from your statements).</p>
 </header>
 
+<div id="formSection">
 <form id="intakeForm" onsubmit="return false;">
 
 <div class="panel" id="section_business_basics">
@@ -218,17 +321,10 @@
     <label class="radio-opt"><input type="radio" name="pt_approach" value="Not sure yet"> <span>Not sure yet</span></label>
   </div>
 </div>
-<div class="field" id="wrap_revenue_range">
-  <label class="lbl" for="revenue_range">Rough annual revenue range</label>
-  <select id="revenue_range" name="revenue_range">
-    <option value="">Choose one...</option>
-    <option value="Under $250K">Under $250K</option>
-    <option value="$250K - $500K">$250K - $500K</option>
-    <option value="$500K - $1M">$500K - $1M</option>
-    <option value="$1M - $2.5M">$1M - $2.5M</option>
-    <option value="$2.5M - $5M">$2.5M - $5M</option>
-    <option value="$5M+">$5M+</option>
-  </select>
+<div class="field" id="wrap_annual_revenue">
+  <label class="lbl" for="annual_revenue">Approximate annual revenue (dollars)</label>
+  <div class="hint">Best guess is fine. Used to sanity-check that fees land in a reasonable range (1-3% of revenue is the industry norm for full-service bookkeeping).</div>
+  <input type="number" id="annual_revenue" name="annual_revenue" min="0" step="1000" value="">
 </div>
 <div class="field" id="wrap_entity_type">
   <label class="lbl" for="entity_type">Entity type</label>
@@ -311,15 +407,10 @@
   <label class="lbl" for="current_software_other">If Other, which one?</label>
   <input type="text" id="current_software_other" name="current_software_other" placeholder="">
 </div>
-<div class="field" id="wrap_books_current">
-  <label class="lbl" for="books_current">How current are your books right now?</label>
-  <div class="radio-group" data-field="books_current">
-    <label class="radio-opt"><input type="radio" name="books_current" value="Current - reconciled through last month"> <span>Current - reconciled through last month</span></label>
-    <label class="radio-opt"><input type="radio" name="books_current" value="A little behind - 1 to 3 months"> <span>A little behind - 1 to 3 months</span></label>
-    <label class="radio-opt"><input type="radio" name="books_current" value="Meaningfully behind - 4 to 12 months"> <span>Meaningfully behind - 4 to 12 months</span></label>
-    <label class="radio-opt"><input type="radio" name="books_current" value="Way behind - more than a year, or never really done"> <span>Way behind - more than a year, or never really done</span></label>
-    <label class="radio-opt"><input type="radio" name="books_current" value="Not sure"> <span>Not sure</span></label>
-  </div>
+<div class="field" id="wrap_months_behind">
+  <label class="lbl" for="months_behind">How many months behind are your books? (Enter 0 if current, best guess if not sure)</label>
+  <div class="hint">0 means everything&#x27;s reconciled through last month. If you&#x27;re not fully sure, ballpark it - I&#x27;ll verify against your statements.</div>
+  <input type="number" id="months_behind" name="months_behind" min="0" step="1" value="">
 </div>
 <div class="field" id="wrap_who_does_books">
   <label class="lbl" for="who_does_books">Who&#x27;s doing the books today?</label>
@@ -377,18 +468,9 @@
   <input type="number" id="merchant_accounts" name="merchant_accounts" min="0" step="1" value="0">
 </div>
 <div class="field" id="wrap_monthly_transactions">
-  <label class="lbl" for="monthly_transactions">Rough monthly transaction volume across all accounts</label>
-  <div class="hint">Combined debit + credit line items across bank and card statements. If you&#x27;re not sure, best guess.</div>
-  <select id="monthly_transactions" name="monthly_transactions">
-    <option value="">Choose one...</option>
-    <option value="Under 50">Under 50</option>
-    <option value="50 - 150">50 - 150</option>
-    <option value="150 - 300">150 - 300</option>
-    <option value="300 - 500">300 - 500</option>
-    <option value="500 - 1,000">500 - 1,000</option>
-    <option value="1,000+">1,000+</option>
-    <option value="Not sure - happy for you to estimate from statements">Not sure - happy for you to estimate from statements</option>
-  </select>
+  <label class="lbl" for="monthly_transactions">Approximate monthly transactions across all accounts</label>
+  <div class="hint">Combined debit + credit line items across bank and card statements per month. Leave blank if truly unsure - I&#x27;ll estimate from your statements. Best guess is better than blank.</div>
+  <input type="number" id="monthly_transactions" name="monthly_transactions" min="0" step="10" value="">
 </div>
 </div>
 
@@ -475,7 +557,7 @@
 </div>
 </div>
 
-<div class="panel" id="section_cleanup" data-showif="true" style="display:none" data-showif-field="books_current" data-showif-notequals="Current - reconciled through last month">
+<div class="panel" id="section_cleanup" data-showif="true" style="display:none" data-showif-field="months_behind">
   <h2>Cleanup / Balance Sheet Issues</h2>
   <div class="section-hint">Only relevant if your books need catch-up or correcting before ongoing service starts. Skip this section if books are current and clean.</div>
 <div class="field" id="wrap_cleanup_needed">
@@ -487,15 +569,9 @@
   </div>
 </div>
 <div class="field" id="wrap_cleanup_months" data-showif="true" style="display:none" data-showif-field="cleanup_needed" data-showif-notequals="No - just want ongoing service starting fresh">
-  <label class="lbl" for="cleanup_months">Rough months of cleanup needed</label>
-  <select id="cleanup_months" name="cleanup_months">
-    <option value="">Choose one...</option>
-    <option value="1 to 3 months">1 to 3 months</option>
-    <option value="4 to 6 months">4 to 6 months</option>
-    <option value="7 to 12 months">7 to 12 months</option>
-    <option value="More than a year">More than a year</option>
-    <option value="Not sure">Not sure</option>
-  </select>
+  <label class="lbl" for="cleanup_months">How many months of cleanup do you think are needed?</label>
+  <div class="hint">Best guess. If cleanup covers your entire book history, count months since QBO was set up (or as far back as anything&#x27;s ever been trusted).</div>
+  <input type="number" id="cleanup_months" name="cleanup_months" min="0" step="1" value="">
 </div>
 <div class="field" id="wrap_cleanup_scope" data-showif="true" style="display:none" data-showif-field="cleanup_needed" data-showif-notequals="No - just want ongoing service starting fresh">
   <label class="lbl" for="cleanup_scope">Does the cleanup need to cover your entire book history, or just a recent stretch?</label>
@@ -558,22 +634,42 @@
 </div>
 
 <div class="submit-panel">
-  <p>When you&#x27;re done, click &#x27;Copy My Responses&#x27; at the bottom. Then paste the copied text into a reply to my email so I have your answers to build the proposal from.</p>
-  <button type="button" class="btn" id="copyBtn" onclick="copyResponses()">Copy My Responses</button>
-  <div class="copy-status" id="copyStatus">&nbsp;</div>
+  <p>When you're done, click Preview to see a clean summary you can save as a PDF or copy for pasting into an email.</p>
+  <button type="button" class="btn" onclick="showPreview()">Preview My Responses</button>
 </div>
 
 </form>
+</div>
+
+<div id="previewSection" style="display:none">
+  <div class="preview-wrap">
+    <h2 class="preview-title">Peak Bookkeeping - Scope Intake Summary</h2>
+    <div class="preview-meta" id="previewMeta">Generated for review</div>
+    <div id="previewContent"></div>
+    <div class="preview-notes">
+      This summary was generated from responses submitted through the Peak Bookkeeping scope intake form. Blank or hidden fields are excluded. Best guesses will be verified against source documents before the final proposal.
+    </div>
+  </div>
+  <div class="submit-panel">
+    <p>Save this as a PDF (recommended) and upload it to the FCS request I sent, or copy as text and paste into a reply email.</p>
+    <div class="btn-row">
+      <button type="button" class="btn" onclick="printResponses()">Print / Save as PDF</button>
+      <button type="button" class="btn secondary" id="copyBtn" onclick="copyResponses()">Copy as Text</button>
+      <button type="button" class="btn tertiary" onclick="backToEdit()">Back to Edit</button>
+    </div>
+    <div class="copy-status" id="copyStatus">&nbsp;</div>
+  </div>
+</div>
 
 <div class="footer-note">
-  Your responses stay on this page until you copy them. Nothing is sent automatically. Peak Bookkeeping does not store this data on any server - you control it fully by choosing when to paste it into your email.
+  Your responses stay on this page until you save or copy them. Nothing is sent automatically. Peak Bookkeeping does not store this data on any server - you control it fully by choosing when to submit.
 </div>
 
 </div>
 
 <script>
 // --- Field metadata (from scope-fields.json at build time) ---
-const FIELD_META = {"business_name": {"label": "Business name", "type": "text", "section": "About Your Business"}, "your_name": {"label": "Your name", "type": "text", "section": "About Your Business"}, "your_email": {"label": "Best email for the proposal", "type": "email", "section": "About Your Business"}, "industry": {"label": "Industry", "type": "select", "section": "About Your Business"}, "industry_other_note": {"label": "If 'Other', briefly describe what your business does", "type": "text", "section": "About Your Business"}, "pt_approach": {"label": "For insurance-based PT/healthcare only: how do you want revenue recorded?", "type": "radio", "section": "About Your Business"}, "revenue_range": {"label": "Rough annual revenue range", "type": "select", "section": "About Your Business"}, "entity_type": {"label": "Entity type", "type": "select", "section": "About Your Business"}, "multi_entity": {"label": "Do you own multiple business entities that would need bookkeeping?", "type": "radio", "section": "About Your Business"}, "entity_count": {"label": "How many entities total?", "type": "number", "section": "About Your Business"}, "service_type": {"label": "Which best describes what you're after?", "type": "radio", "section": "What You're Looking For"}, "timeline": {"label": "Timeline to get this in place", "type": "select", "section": "What You're Looking For"}, "time_sensitive": {"label": "Are you preparing for anything time-sensitive? (Check all that apply)", "type": "checkbox_group", "section": "What You're Looking For"}, "current_software": {"label": "What accounting software are you using now?", "type": "select", "section": "Your Current Setup"}, "current_software_other": {"label": "If Other, which one?", "type": "text", "section": "Your Current Setup"}, "books_current": {"label": "How current are your books right now?", "type": "radio", "section": "Your Current Setup"}, "who_does_books": {"label": "Who's doing the books today?", "type": "select", "section": "Your Current Setup"}, "last_trusted_pl": {"label": "When's the last time you got a P&L you actually trusted and used to make a decision?", "type": "select", "section": "Your Current Setup"}, "bank_accounts": {"label": "Number of business bank accounts (checking + savings)", "type": "number", "section": "Financial Accounts"}, "credit_cards": {"label": "Number of business credit cards", "type": "number", "section": "Financial Accounts"}, "loans": {"label": "Number of active loans or lines of credit", "type": "number", "section": "Financial Accounts"}, "loans_same_lender": {"label": "Are all your loans with the same lender or different lenders?", "type": "radio", "section": "Financial Accounts"}, "merchant_accounts": {"label": "Number of merchant processor accounts (Stripe, Square, PayPal Business, etc.)", "type": "number", "section": "Financial Accounts"}, "monthly_transactions": {"label": "Rough monthly transaction volume across all accounts", "type": "select", "section": "Financial Accounts"}, "runs_payroll": {"label": "Do you run payroll?", "type": "radio", "section": "Payroll"}, "payroll_provider": {"label": "Payroll provider", "type": "select", "section": "Payroll"}, "payroll_provider_other": {"label": "If Other, which one?", "type": "text", "section": "Payroll"}, "w2_employees": {"label": "Number of W-2 employees", "type": "number", "section": "Payroll"}, "pay_frequency": {"label": "Pay frequency", "type": "radio", "section": "Payroll"}, "contractors_1099": {"label": "Approximate 1099-eligible contractor count (paid over $2,000/year)", "type": "number", "section": "Payroll"}, "collects_sales_tax": {"label": "Do you collect sales tax?", "type": "radio", "section": "Sales Tax"}, "sales_tax_jurisdictions": {"label": "How many jurisdictions (states / counties / cities) do you file in?", "type": "number", "section": "Sales Tax"}, "wants_ar": {"label": "A/R management (invoicing, payment recording, aging reports, automated overdue reminders)", "type": "checkbox", "section": "Additional Services You Might Want"}, "wants_ap": {"label": "A/P / Bill pay (bill entry, aging, scheduling payments through QuickBooks Online Bill Pay after your approval)", "type": "checkbox", "section": "Additional Services You Might Want"}, "has_inventory": {"label": "Inventory tracking (SKU-level reporting, COGS entries, monthly reconciliation)", "type": "checkbox", "section": "Additional Services You Might Want"}, "wants_class_tracking": {"label": "Class / location / project / department tracking (P&L sliced by segment)", "type": "checkbox", "section": "Additional Services You Might Want"}, "wants_advisory": {"label": "Advisory (quarterly financial review + KPI dashboard, non-tax) - $495/mo add-on", "type": "checkbox", "section": "Additional Services You Might Want"}, "cleanup_needed": {"label": "Do you think your books need catch-up or cleanup before ongoing bookkeeping can start?", "type": "radio", "section": "Cleanup / Balance Sheet Issues"}, "cleanup_months": {"label": "Rough months of cleanup needed", "type": "select", "section": "Cleanup / Balance Sheet Issues"}, "cleanup_scope": {"label": "Does the cleanup need to cover your entire book history, or just a recent stretch?", "type": "radio", "section": "Cleanup / Balance Sheet Issues"}, "known_bs_issues": {"label": "Known balance sheet complications (check all that apply)", "type": "checkbox_group", "section": "Cleanup / Balance Sheet Issues"}, "cleanup_findings_notes": {"label": "Anything specific you've already found and want to flag? (optional)", "type": "textarea", "section": "Cleanup / Balance Sheet Issues"}, "most_recent_tax_year_filed": {"label": "Has your most recent full tax year been filed?", "type": "radio", "section": "Cleanup / Balance Sheet Issues"}, "cpa_name": {"label": "Your CPA / tax preparer (if you have one)", "type": "text", "section": "Anything Else"}, "communication_pref": {"label": "Preferred way to hear from me", "type": "select", "section": "Anything Else"}, "additional_notes": {"label": "Anything else I should know before writing the proposal?", "type": "textarea", "section": "Anything Else"}};
+const FIELD_META = {"business_name": {"label": "Business name", "type": "text", "section": "About Your Business"}, "your_name": {"label": "Your name", "type": "text", "section": "About Your Business"}, "your_email": {"label": "Best email for the proposal", "type": "email", "section": "About Your Business"}, "industry": {"label": "Industry", "type": "select", "section": "About Your Business"}, "industry_other_note": {"label": "If 'Other', briefly describe what your business does", "type": "text", "section": "About Your Business"}, "pt_approach": {"label": "For insurance-based PT/healthcare only: how do you want revenue recorded?", "type": "radio", "section": "About Your Business"}, "annual_revenue": {"label": "Approximate annual revenue (dollars)", "type": "number", "section": "About Your Business"}, "entity_type": {"label": "Entity type", "type": "select", "section": "About Your Business"}, "multi_entity": {"label": "Do you own multiple business entities that would need bookkeeping?", "type": "radio", "section": "About Your Business"}, "entity_count": {"label": "How many entities total?", "type": "number", "section": "About Your Business"}, "service_type": {"label": "Which best describes what you're after?", "type": "radio", "section": "What You're Looking For"}, "timeline": {"label": "Timeline to get this in place", "type": "select", "section": "What You're Looking For"}, "time_sensitive": {"label": "Are you preparing for anything time-sensitive? (Check all that apply)", "type": "checkbox_group", "section": "What You're Looking For"}, "current_software": {"label": "What accounting software are you using now?", "type": "select", "section": "Your Current Setup"}, "current_software_other": {"label": "If Other, which one?", "type": "text", "section": "Your Current Setup"}, "months_behind": {"label": "How many months behind are your books? (Enter 0 if current, best guess if not sure)", "type": "number", "section": "Your Current Setup"}, "who_does_books": {"label": "Who's doing the books today?", "type": "select", "section": "Your Current Setup"}, "last_trusted_pl": {"label": "When's the last time you got a P&L you actually trusted and used to make a decision?", "type": "select", "section": "Your Current Setup"}, "bank_accounts": {"label": "Number of business bank accounts (checking + savings)", "type": "number", "section": "Financial Accounts"}, "credit_cards": {"label": "Number of business credit cards", "type": "number", "section": "Financial Accounts"}, "loans": {"label": "Number of active loans or lines of credit", "type": "number", "section": "Financial Accounts"}, "loans_same_lender": {"label": "Are all your loans with the same lender or different lenders?", "type": "radio", "section": "Financial Accounts"}, "merchant_accounts": {"label": "Number of merchant processor accounts (Stripe, Square, PayPal Business, etc.)", "type": "number", "section": "Financial Accounts"}, "monthly_transactions": {"label": "Approximate monthly transactions across all accounts", "type": "number", "section": "Financial Accounts"}, "runs_payroll": {"label": "Do you run payroll?", "type": "radio", "section": "Payroll"}, "payroll_provider": {"label": "Payroll provider", "type": "select", "section": "Payroll"}, "payroll_provider_other": {"label": "If Other, which one?", "type": "text", "section": "Payroll"}, "w2_employees": {"label": "Number of W-2 employees", "type": "number", "section": "Payroll"}, "pay_frequency": {"label": "Pay frequency", "type": "radio", "section": "Payroll"}, "contractors_1099": {"label": "Approximate 1099-eligible contractor count (paid over $2,000/year)", "type": "number", "section": "Payroll"}, "collects_sales_tax": {"label": "Do you collect sales tax?", "type": "radio", "section": "Sales Tax"}, "sales_tax_jurisdictions": {"label": "How many jurisdictions (states / counties / cities) do you file in?", "type": "number", "section": "Sales Tax"}, "wants_ar": {"label": "A/R management (invoicing, payment recording, aging reports, automated overdue reminders)", "type": "checkbox", "section": "Additional Services You Might Want"}, "wants_ap": {"label": "A/P / Bill pay (bill entry, aging, scheduling payments through QuickBooks Online Bill Pay after your approval)", "type": "checkbox", "section": "Additional Services You Might Want"}, "has_inventory": {"label": "Inventory tracking (SKU-level reporting, COGS entries, monthly reconciliation)", "type": "checkbox", "section": "Additional Services You Might Want"}, "wants_class_tracking": {"label": "Class / location / project / department tracking (P&L sliced by segment)", "type": "checkbox", "section": "Additional Services You Might Want"}, "wants_advisory": {"label": "Advisory (quarterly financial review + KPI dashboard, non-tax) - $495/mo add-on", "type": "checkbox", "section": "Additional Services You Might Want"}, "cleanup_needed": {"label": "Do you think your books need catch-up or cleanup before ongoing bookkeeping can start?", "type": "radio", "section": "Cleanup / Balance Sheet Issues"}, "cleanup_months": {"label": "How many months of cleanup do you think are needed?", "type": "number", "section": "Cleanup / Balance Sheet Issues"}, "cleanup_scope": {"label": "Does the cleanup need to cover your entire book history, or just a recent stretch?", "type": "radio", "section": "Cleanup / Balance Sheet Issues"}, "known_bs_issues": {"label": "Known balance sheet complications (check all that apply)", "type": "checkbox_group", "section": "Cleanup / Balance Sheet Issues"}, "cleanup_findings_notes": {"label": "Anything specific you've already found and want to flag? (optional)", "type": "textarea", "section": "Cleanup / Balance Sheet Issues"}, "most_recent_tax_year_filed": {"label": "Has your most recent full tax year been filed?", "type": "radio", "section": "Cleanup / Balance Sheet Issues"}, "cpa_name": {"label": "Your CPA / tax preparer (if you have one)", "type": "text", "section": "Anything Else"}, "communication_pref": {"label": "Preferred way to hear from me", "type": "select", "section": "Anything Else"}, "additional_notes": {"label": "Anything else I should know before writing the proposal?", "type": "textarea", "section": "Anything Else"}};
 
 // --- Conditional show/hide logic ---
 function evaluateShowIf(el) {
@@ -709,17 +805,79 @@ function copyResponses() {
     btn.textContent = 'Copied to Clipboard';
     btn.classList.add('copied');
     status.className = 'copy-status success';
-    status.textContent = 'Now paste this into a reply to Madison\'s email. Your responses stay in your clipboard until you paste them.';
+    status.textContent = 'Text is on your clipboard. Paste it into a reply email or into the FCS request response field.';
     setTimeout(() => {
-      btn.textContent = 'Copy My Responses';
+      btn.textContent = 'Copy as Text';
       btn.classList.remove('copied');
     }, 4000);
   }).catch(err => {
-    // Fallback: show text in a textarea for manual copy
-    const fallback = prompt('Copy the text below and paste it into your email reply:', text);
+    // Fallback: show text in a prompt for manual copy
+    prompt('Copy the text below and paste it into your email reply or FCS request:', text);
     status.className = 'copy-status';
-    status.textContent = 'If copy didn\'t work, use the popup fallback.';
+    status.textContent = 'If copy didn\'t work automatically, use the popup fallback.';
   });
+}
+
+// --- Preview / Print flow ---
+function renderPreviewHTML(sections) {
+  const parts = [];
+  Object.keys(sections).forEach(sectionTitle => {
+    parts.push('<div class="preview-section">');
+    parts.push('<h3>' + escapeHtml(sectionTitle) + '</h3>');
+    sections[sectionTitle].forEach(item => {
+      parts.push('<div class="preview-row">');
+      parts.push('<span class="preview-label">' + escapeHtml(item.label) + '</span>');
+      parts.push('<span class="preview-value">' + escapeHtml(item.value) + '</span>');
+      parts.push('</div>');
+    });
+    parts.push('</div>');
+  });
+  return parts.join('');
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function showPreview() {
+  const sections = collectResponses();
+  if (Object.keys(sections).length === 0) {
+    alert('Please fill out at least a few fields before previewing.');
+    return;
+  }
+  const previewEl = document.getElementById('previewContent');
+  previewEl.innerHTML = renderPreviewHTML(sections);
+
+  // Update meta line with business name + generation date
+  const businessNameEl = document.getElementById('business_name');
+  const yourNameEl = document.getElementById('your_name');
+  const businessName = businessNameEl ? businessNameEl.value.trim() : '';
+  const yourName = yourNameEl ? yourNameEl.value.trim() : '';
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  const metaLine = [businessName || yourName || 'Prospect', dateStr].filter(Boolean).join('  |  ');
+  document.getElementById('previewMeta').textContent = metaLine;
+
+  document.getElementById('formSection').style.display = 'none';
+  document.getElementById('previewSection').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function backToEdit() {
+  document.getElementById('formSection').style.display = 'block';
+  document.getElementById('previewSection').style.display = 'none';
+  document.getElementById('copyStatus').textContent = '\u00a0';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function printResponses() {
+  // Small delay so any UI transitions settle before the print dialog opens
+  setTimeout(() => window.print(), 100);
 }
 </script>
 
