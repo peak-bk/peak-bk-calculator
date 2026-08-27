@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Peak Bookkeeping - Scope Intake Form</title>
+<style>
+  :root {
+    --bg: #f9f4f0;
+    --card: #ffffff;
+    --ink: #201714;
+    --ink-2: #32201a;
+    --muted: #644f46;
+    --rose: #f5ebec;
+    --rose-2: #faf4f0;
+    --accent: #a88c90;
+    --line: #e5d6d1;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 32px 24px 64px; }
+  header.hero {
+    background: var(--ink-2);
+    color: #fff;
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+  }
+  header.hero h1 { margin: 0 0 8px; font-size: 22px; letter-spacing: 0.5px; }
+  header.hero p { margin: 0; opacity: 0.9; font-size: 13px; line-height: 1.55; }
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 18px;
+  }
+  .panel h2 {
+    margin: 0 0 14px;
+    font-size: 15px;
+    color: var(--ink-2);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent);
+  }
+  .section-hint {
+    color: var(--muted);
+    font-size: 12.5px;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    background: var(--rose-2);
+    border-radius: 8px;
+  }
+  .field { margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+  .lbl {
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink-2);
+    margin-bottom: 6px;
+  }
+  .hint {
+    color: var(--muted);
+    font-size: 12px;
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  input[type="text"], input[type="email"], input[type="number"], select, textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #fff;
+    color: var(--ink);
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(168, 140, 144, 0.15);
+  }
+  textarea { resize: vertical; min-height: 70px; }
+  .radio-group, .checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .radio-opt, .check-opt, .check-single {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+    font-size: 13.5px;
+  }
+  .radio-opt:hover, .check-opt:hover, .check-single:hover {
+    background: var(--rose-2);
+    border-color: var(--accent);
+  }
+  .radio-opt input, .check-opt input, .check-single input {
+    margin-top: 2px;
+    accent-color: var(--accent);
+  }
+  .radio-opt.selected, .check-opt.selected, .check-single.selected {
+    background: var(--rose);
+    border-color: var(--accent);
+  }
+  .submit-panel {
+    background: var(--ink-2);
+    color: #fff;
+    border-radius: 12px;
+    padding: 24px 26px;
+    margin-top: 8px;
+    text-align: center;
+  }
+  .submit-panel p {
+    margin: 0 0 16px;
+    font-size: 13px;
+    line-height: 1.55;
+    opacity: 0.95;
+  }
+  .btn {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    padding: 14px 32px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: opacity 0.15s;
+    font-family: inherit;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn.copied { background: #4a7856; }
+  .copy-status {
+    margin-top: 14px;
+    font-size: 13px;
+    color: #e5d6d1;
+    min-height: 18px;
+  }
+  .copy-status.success { color: #b7e5c0; font-weight: 600; }
+  .footer-note {
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 20px;
+    padding: 0 20px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>Peak Bookkeeping - Scope Intake Form</h1>
+  <p>Thanks for taking the time to fill this out. The more accurate this is, the more accurate your written proposal will be. Nothing here is a commitment - it just helps me price the engagement correctly instead of guessing. Takes about 8 to 10 minutes. If you&#x27;re not sure of a number, best-guess is fine (or leave it blank and I&#x27;ll estimate from your statements).</p>
+</header>
+
+<form id="intakeForm" onsubmit="return false;">
+
+<div class="panel" id="section_business_basics">
+  <h2>About Your Business</h2>
+<div class="field" id="wrap_business_name">
+  <label class="lbl" for="business_name">Business name</label>
+  <input type="text" id="business_name" name="business_name" placeholder="e.g. Sample Client LLC">
+</div>
+<div class="field" id="wrap_your_name">
+  <label class="lbl" for="your_name">Your name</label>
+  <input type="text" id="your_name" name="your_name" placeholder="">
+</div>
+<div class="field" id="wrap_your_email">
+  <label class="lbl" for="your_email">Best email for the proposal</label>
+  <input type="email" id="your_email" name="your_email" placeholder="">
+</div>
+<div class="field" id="wrap_industry">
+  <label class="lbl" for="industry">Industry</label>
+  <select id="industry" name="industry">
+    <option value="">Choose one...</option>
+    <option value="Service / Consulting / Professional">Service / Consulting / Professional</option>
+    <option value="Real Estate / Agency">Real Estate / Agency</option>
+    <option value="Nonprofit (grant tracking)">Nonprofit (grant tracking)</option>
+    <option value="Trades / Construction">Trades / Construction</option>
+    <option value="Restaurant / Hospitality">Restaurant / Hospitality</option>
+    <option value="Retail (POS / inventory / sales tax)">Retail (POS / inventory / sales tax)</option>
+    <option value="E-commerce (multi-channel / inventory)">E-commerce (multi-channel / inventory)</option>
+    <option value="PT / Healthcare - cash-pay only">PT / Healthcare - cash-pay only</option>
+    <option value="PT / Healthcare - insurance-based">PT / Healthcare - insurance-based</option>
+    <option value="Other (describe below)">Other (describe below)</option>
+  </select>
+</div>
+<div class="field" id="wrap_industry_other_note" data-showif="true" style="display:none" data-showif-field="industry" data-showif-equals="Other (describe below)">
+  <label class="lbl" for="industry_other_note">If &#x27;Other&#x27;, briefly describe what your business does</label>
+  <input type="text" id="industry_other_note" name="industry_other_note" placeholder="">
+</div>
+<div class="field" id="wrap_pt_approach" data-showif="true" style="display:none" data-showif-field="industry" data-showif-equals="PT / Healthcare - insurance-based">
+  <label class="lbl" for="pt_approach">For insurance-based PT/healthcare only: how do you want revenue recorded?</label>
+  <div class="hint">If you&#x27;re not sure, skip - we&#x27;ll walk through this on the call before finalizing scope.</div>
+  <div class="radio-group" data-field="pt_approach">
+    <label class="radio-opt"><input type="radio" name="pt_approach" value="Approach A - Only collected (paid) revenue hits the P&amp;L (simpler)"> <span>Approach A - Only collected (paid) revenue hits the P&amp;L (simpler)</span></label>
+    <label class="radio-opt"><input type="radio" name="pt_approach" value="Approach B - Full revenue cycle: billed, adjustments, collected all tracked (more work, more insight)"> <span>Approach B - Full revenue cycle: billed, adjustments, collected all tracked (more work, more insight)</span></label>
+    <label class="radio-opt"><input type="radio" name="pt_approach" value="Not sure yet"> <span>Not sure yet</span></label>
+  </div>
+</div>
+<div class="field" id="wrap_revenue_range">
+  <label class="lbl" for="revenue_range">Rough annual revenue range</label>
+  <select id="revenue_range" name="revenue_range">
+    <option value="">Choose one...</option>
+    <option value="Under $250K">Under $250K</option>
+    <option value="$250K - $500K">$250K - $500K</option>
+    <option value="$500K - $1M">$500K - $1M</option>
+    <option value="$1M - $2.5M">$1M - $2.5M</option>
+    <option value="$2.5M - $5M">$2.5M - $5M</option>
+    <option value="$5M+">$5M+</option>
+  </select>
+</div>
+<div class="field" id="wrap_entity_type">
+  <label class="lbl" for="entity_type">Entity type</label>
+  <select id="entity_type" name="entity_type">
+    <option value="">Choose one...</option>
+    <option value="Sole proprietor">Sole proprietor</option>
+    <option value="Single-member LLC">Single-member LLC</option>
+    <option value="Multi-member LLC / Partnership">Multi-member LLC / Partnership</option>
+    <option value="S-corporation">S-corporation</option>
+    <option value="C-corporation">C-corporation</option>
+    <option value="Nonprofit">Nonprofit</option>
+    <option value="Other / not sure">Other / not sure</option>
+  </select>
+</div>
+<div class="field" id="wrap_multi_entity">
+  <label class="lbl" for="multi_entity">Do you own multiple business entities that would need bookkeeping?</label>
+  <div class="radio-group" data-field="multi_entity">
+    <label class="radio-opt"><input type="radio" name="multi_entity" value="Just this one"> <span>Just this one</span></label>
+    <label class="radio-opt"><input type="radio" name="multi_entity" value="Yes, multiple"> <span>Yes, multiple</span></label>
+  </div>
+</div>
+<div class="field" id="wrap_entity_count" data-showif="true" style="display:none" data-showif-field="multi_entity" data-showif-equals="Yes, multiple">
+  <label class="lbl" for="entity_count">How many entities total?</label>
+  <input type="number" id="entity_count" name="entity_count" min="2" step="1" value="2">
+</div>
+</div>
+
+<div class="panel" id="section_what_you_need">
+  <h2>What You&#x27;re Looking For</h2>
+<div class="field" id="wrap_service_type">
+  <label class="lbl" for="service_type">Which best describes what you&#x27;re after?</label>
+  <div class="hint">If you&#x27;re not sure, pick &#x27;Recommend based on my situation&#x27; - we&#x27;ll figure it out together.</div>
+  <div class="radio-group" data-field="service_type">
+    <label class="radio-opt"><input type="radio" name="service_type" value="Ongoing monthly bookkeeping (full service - I want it off my plate)"> <span>Ongoing monthly bookkeeping (full service - I want it off my plate)</span></label>
+    <label class="radio-opt"><input type="radio" name="service_type" value="Reconciliation &amp; Review only (I&#x27;ll code my own transactions, you verify)"> <span>Reconciliation &amp; Review only (I&#x27;ll code my own transactions, you verify)</span></label>
+    <label class="radio-opt"><input type="radio" name="service_type" value="New QuickBooks Online setup, then maybe ongoing later"> <span>New QuickBooks Online setup, then maybe ongoing later</span></label>
+    <label class="radio-opt"><input type="radio" name="service_type" value="One-time catch-up or cleanup only (no ongoing service after)"> <span>One-time catch-up or cleanup only (no ongoing service after)</span></label>
+    <label class="radio-opt"><input type="radio" name="service_type" value="Recommend based on my situation"> <span>Recommend based on my situation</span></label>
+  </div>
+</div>
+<div class="field" id="wrap_timeline">
+  <label class="lbl" for="timeline">Timeline to get this in place</label>
+  <select id="timeline" name="timeline">
+    <option value="">Choose one...</option>
+    <option value="ASAP - already behind">ASAP - already behind</option>
+    <option value="Within the next month">Within the next month</option>
+    <option value="Within the next 2-3 months">Within the next 2-3 months</option>
+    <option value="Just exploring, no rush">Just exploring, no rush</option>
+  </select>
+</div>
+<div class="field" id="wrap_time_sensitive">
+  <label class="lbl" for="time_sensitive">Are you preparing for anything time-sensitive? (Check all that apply)</label>
+  <div class="checkbox-group" data-field="time_sensitive">
+    <label class="check-opt"><input type="checkbox" name="time_sensitive" value="Loan or line of credit application"> <span>Loan or line of credit application</span></label>
+    <label class="check-opt"><input type="checkbox" name="time_sensitive" value="Sale of the business"> <span>Sale of the business</span></label>
+    <label class="check-opt"><input type="checkbox" name="time_sensitive" value="Audit or IRS review"> <span>Audit or IRS review</span></label>
+    <label class="check-opt"><input type="checkbox" name="time_sensitive" value="Bringing on a new investor / partner"> <span>Bringing on a new investor / partner</span></label>
+    <label class="check-opt"><input type="checkbox" name="time_sensitive" value="None - just want the books in shape"> <span>None - just want the books in shape</span></label>
+  </div>
+</div>
+</div>
+
+<div class="panel" id="section_current_bookkeeping">
+  <h2>Your Current Setup</h2>
+<div class="field" id="wrap_current_software">
+  <label class="lbl" for="current_software">What accounting software are you using now?</label>
+  <select id="current_software" name="current_software">
+    <option value="">Choose one...</option>
+    <option value="QuickBooks Online">QuickBooks Online</option>
+    <option value="QuickBooks Desktop">QuickBooks Desktop</option>
+    <option value="Xero">Xero</option>
+    <option value="Wave">Wave</option>
+    <option value="FreshBooks">FreshBooks</option>
+    <option value="Spreadsheets">Spreadsheets</option>
+    <option value="Nothing structured yet">Nothing structured yet</option>
+    <option value="Other">Other</option>
+  </select>
+</div>
+<div class="field" id="wrap_current_software_other" data-showif="true" style="display:none" data-showif-field="current_software" data-showif-equals="Other">
+  <label class="lbl" for="current_software_other">If Other, which one?</label>
+  <input type="text" id="current_software_other" name="current_software_other" placeholder="">
+</div>
+<div class="field" id="wrap_books_current">
+  <label class="lbl" for="books_current">How current are your books right now?</label>
+  <div class="radio-group" data-field="books_current">
+    <label class="radio-opt"><input type="radio" name="books_current" value="Current - reconciled through last month"> <span>Current - reconciled through last month</span></label>
+    <label class="radio-opt"><input type="radio" name="books_current" value="A little behind - 1 to 3 months"> <span>A little behind - 1 to 3 months</span></label>
+    <label class="radio-opt"><input type="radio" name="books_current" value="Meaningfully behind - 4 to 12 months"> <span>Meaningfully behind - 4 to 12 months</span></label>
+    <label class="radio-opt"><input type="radio" name="books_current" value="Way behind - more than a year, or never really done"> <span>Way behind - more than a year, or never really done</span></label>
+    <label class="radio-opt"><input type="radio" name="books_current" value="Not sure"> <span>Not sure</span></label>
+  </div>
+</div>
+<div class="field" id="wrap_who_does_books">
+  <label class="lbl" for="who_does_books">Who&#x27;s doing the books today?</label>
+  <select id="who_does_books" name="who_does_books">
+    <option value="">Choose one...</option>
+    <option value="Me">Me</option>
+    <option value="Spouse or family member">Spouse or family member</option>
+    <option value="Another bookkeeper">Another bookkeeper</option>
+    <option value="My CPA / accountant">My CPA / accountant</option>
+    <option value="Nobody, really">Nobody, really</option>
+    <option value="Other">Other</option>
+  </select>
+</div>
+<div class="field" id="wrap_last_trusted_pl">
+  <label class="lbl" for="last_trusted_pl">When&#x27;s the last time you got a P&amp;L you actually trusted and used to make a decision?</label>
+  <select id="last_trusted_pl" name="last_trusted_pl">
+    <option value="">Choose one...</option>
+    <option value="Within the last month">Within the last month</option>
+    <option value="1 to 3 months ago">1 to 3 months ago</option>
+    <option value="3 to 12 months ago">3 to 12 months ago</option>
+    <option value="Over a year ago">Over a year ago</option>
+    <option value="Never / not sure">Never / not sure</option>
+  </select>
+</div>
+</div>
+
+<div class="panel" id="section_accounts">
+  <h2>Financial Accounts</h2>
+  <div class="section-hint">Rough numbers are fine - I&#x27;ll verify against your statements before finalizing the quote.</div>
+<div class="field" id="wrap_bank_accounts">
+  <label class="lbl" for="bank_accounts">Number of business bank accounts (checking + savings)</label>
+  <input type="number" id="bank_accounts" name="bank_accounts" min="0" step="1" value="1">
+</div>
+<div class="field" id="wrap_credit_cards">
+  <label class="lbl" for="credit_cards">Number of business credit cards</label>
+  <input type="number" id="credit_cards" name="credit_cards" min="0" step="1" value="0">
+</div>
+<div class="field" id="wrap_loans">
+  <label class="lbl" for="loans">Number of active loans or lines of credit</label>
+  <div class="hint">Include SBA loans, equipment loans, mortgages on business property, credit lines - anything with a principal balance that pays down over time.</div>
+  <input type="number" id="loans" name="loans" min="0" step="1" value="0">
+</div>
+<div class="field" id="wrap_loans_same_lender" data-showif="true" style="display:none" data-showif-field="loans" data-showif-greaterthan="1">
+  <label class="lbl" for="loans_same_lender">Are all your loans with the same lender or different lenders?</label>
+  <div class="hint">Loans sharing a lender are faster to verify (same amortization system, same statement format). Not sure is fine.</div>
+  <div class="radio-group" data-field="loans_same_lender">
+    <label class="radio-opt"><input type="radio" name="loans_same_lender" value="All one lender"> <span>All one lender</span></label>
+    <label class="radio-opt"><input type="radio" name="loans_same_lender" value="Two lenders"> <span>Two lenders</span></label>
+    <label class="radio-opt"><input type="radio" name="loans_same_lender" value="Three or more lenders"> <span>Three or more lenders</span></label>
+    <label class="radio-opt"><input type="radio" name="loans_same_lender" value="Not sure"> <span>Not sure</span></label>
+  </div>
+</div>
+<div class="field" id="wrap_merchant_accounts">
+  <label class="lbl" for="merchant_accounts">Number of merchant processor accounts (Stripe, Square, PayPal Business, etc.)</label>
+  <input type="number" id="merchant_accounts" name="merchant_accounts" min="0" step="1" value="0">
+</div>
+<div class="field" id="wrap_monthly_transactions">
+  <label class="lbl" for="monthly_transactions">Rough monthly transaction volume across all accounts</label>
+  <div class="hint">Combined debit + credit line items across bank and card statements. If you&#x27;re not sure, best guess.</div>
+  <select id="monthly_transactions" name="monthly_transactions">
+    <option value="">Choose one...</option>
+    <option value="Under 50">Under 50</option>
+    <option value="50 - 150">50 - 150</option>
+    <option value="150 - 300">150 - 300</option>
+    <option value="300 - 500">300 - 500</option>
+    <option value="500 - 1,000">500 - 1,000</option>
+    <option value="1,000+">1,000+</option>
+    <option value="Not sure - happy for you to estimate from statements">Not sure - happy for you to estimate from statements</option>
+  </select>
+</div>
+</div>
+
+<div class="panel" id="section_payroll">
+  <h2>Payroll</h2>
+<div class="field" id="wrap_runs_payroll">
+  <label class="lbl" for="runs_payroll">Do you run payroll?</label>
+  <div class="radio-group" data-field="runs_payroll">
+    <label class="radio-opt"><input type="radio" name="runs_payroll" value="Yes"> <span>Yes</span></label>
+    <label class="radio-opt"><input type="radio" name="runs_payroll" value="No"> <span>No</span></label>
+  </div>
+</div>
+<div class="field" id="wrap_payroll_provider" data-showif="true" style="display:none" data-showif-field="runs_payroll" data-showif-equals="Yes">
+  <label class="lbl" for="payroll_provider">Payroll provider</label>
+  <div class="hint">I work most efficiently in Gusto (my standard) or QuickBooks Payroll. Other providers carry a small surcharge - switching is also an option.</div>
+  <select id="payroll_provider" name="payroll_provider">
+    <option value="">Choose one...</option>
+    <option value="Gusto">Gusto</option>
+    <option value="QuickBooks Payroll (Workforce)">QuickBooks Payroll (Workforce)</option>
+    <option value="ADP">ADP</option>
+    <option value="Paychex">Paychex</option>
+    <option value="OnPay">OnPay</option>
+    <option value="Patriot">Patriot</option>
+    <option value="Bench Payroll">Bench Payroll</option>
+    <option value="Other">Other</option>
+  </select>
+</div>
+<div class="field" id="wrap_payroll_provider_other" data-showif="true" style="display:none" data-showif-field="payroll_provider" data-showif-equals="Other">
+  <label class="lbl" for="payroll_provider_other">If Other, which one?</label>
+  <input type="text" id="payroll_provider_other" name="payroll_provider_other" placeholder="">
+</div>
+<div class="field" id="wrap_w2_employees" data-showif="true" style="display:none" data-showif-field="runs_payroll" data-showif-equals="Yes">
+  <label class="lbl" for="w2_employees">Number of W-2 employees</label>
+  <input type="number" id="w2_employees" name="w2_employees" min="0" step="1" value="0">
+</div>
+<div class="field" id="wrap_pay_frequency" data-showif="true" style="display:none" data-showif-field="runs_payroll" data-showif-equals="Yes">
+  <label class="lbl" for="pay_frequency">Pay frequency</label>
+  <div class="radio-group" data-field="pay_frequency">
+    <label class="radio-opt"><input type="radio" name="pay_frequency" value="Monthly"> <span>Monthly</span></label>
+    <label class="radio-opt"><input type="radio" name="pay_frequency" value="Semi-monthly (twice a month)"> <span>Semi-monthly (twice a month)</span></label>
+    <label class="radio-opt"><input type="radio" name="pay_frequency" value="Bi-weekly (every two weeks)"> <span>Bi-weekly (every two weeks)</span></label>
+    <label class="radio-opt"><input type="radio" name="pay_frequency" value="Weekly"> <span>Weekly</span></label>
+  </div>
+</div>
+<div class="field" id="wrap_contractors_1099">
+  <label class="lbl" for="contractors_1099">Approximate 1099-eligible contractor count (paid over $2,000/year)</label>
+  <div class="hint">Year-end 1099 prep is included for up to 5 contractors. Beyond that, each additional is $10, billed once a year on the January invoice.</div>
+  <input type="number" id="contractors_1099" name="contractors_1099" min="0" step="1" value="0">
+</div>
+</div>
+
+<div class="panel" id="section_sales_tax">
+  <h2>Sales Tax</h2>
+<div class="field" id="wrap_collects_sales_tax">
+  <label class="lbl" for="collects_sales_tax">Do you collect sales tax?</label>
+  <div class="radio-group" data-field="collects_sales_tax">
+    <label class="radio-opt"><input type="radio" name="collects_sales_tax" value="Yes"> <span>Yes</span></label>
+    <label class="radio-opt"><input type="radio" name="collects_sales_tax" value="No"> <span>No</span></label>
+  </div>
+</div>
+<div class="field" id="wrap_sales_tax_jurisdictions" data-showif="true" style="display:none" data-showif-field="collects_sales_tax" data-showif-equals="Yes">
+  <label class="lbl" for="sales_tax_jurisdictions">How many jurisdictions (states / counties / cities) do you file in?</label>
+  <input type="number" id="sales_tax_jurisdictions" name="sales_tax_jurisdictions" min="0" step="1" value="1">
+</div>
+</div>
+
+<div class="panel" id="section_additional_services">
+  <h2>Additional Services You Might Want</h2>
+  <div class="section-hint">Check any that apply. These are add-ons to ongoing bookkeeping - we can add or remove them anytime.</div>
+<div class="field" id="wrap_wants_ar">
+  <label class="check-single"><input type="checkbox" id="wants_ar" name="wants_ar"> <span>A/R management (invoicing, payment recording, aging reports, automated overdue reminders)</span></label>
+</div>
+<div class="field" id="wrap_wants_ap">
+  <label class="check-single"><input type="checkbox" id="wants_ap" name="wants_ap"> <span>A/P / Bill pay (bill entry, aging, scheduling payments through QuickBooks Online Bill Pay after your approval)</span></label>
+</div>
+<div class="field" id="wrap_has_inventory">
+  <label class="check-single"><input type="checkbox" id="has_inventory" name="has_inventory"> <span>Inventory tracking (SKU-level reporting, COGS entries, monthly reconciliation)</span></label>
+</div>
+<div class="field" id="wrap_wants_class_tracking">
+  <label class="check-single"><input type="checkbox" id="wants_class_tracking" name="wants_class_tracking"> <span>Class / location / project / department tracking (P&amp;L sliced by segment)</span></label>
+</div>
+<div class="field" id="wrap_wants_advisory">
+  <label class="check-single"><input type="checkbox" id="wants_advisory" name="wants_advisory"> <span>Advisory (quarterly financial review + KPI dashboard, non-tax) - $495/mo add-on</span></label>
+</div>
+</div>
+
+<div class="panel" id="section_cleanup" data-showif="true" style="display:none" data-showif-field="books_current" data-showif-notequals="Current - reconciled through last month">
+  <h2>Cleanup / Balance Sheet Issues</h2>
+  <div class="section-hint">Only relevant if your books need catch-up or correcting before ongoing service starts. Skip this section if books are current and clean.</div>
+<div class="field" id="wrap_cleanup_needed">
+  <label class="lbl" for="cleanup_needed">Do you think your books need catch-up or cleanup before ongoing bookkeeping can start?</label>
+  <div class="radio-group" data-field="cleanup_needed">
+    <label class="radio-opt"><input type="radio" name="cleanup_needed" value="Yes"> <span>Yes</span></label>
+    <label class="radio-opt"><input type="radio" name="cleanup_needed" value="Maybe / not sure"> <span>Maybe / not sure</span></label>
+    <label class="radio-opt"><input type="radio" name="cleanup_needed" value="No - just want ongoing service starting fresh"> <span>No - just want ongoing service starting fresh</span></label>
+  </div>
+</div>
+<div class="field" id="wrap_cleanup_months" data-showif="true" style="display:none" data-showif-field="cleanup_needed" data-showif-notequals="No - just want ongoing service starting fresh">
+  <label class="lbl" for="cleanup_months">Rough months of cleanup needed</label>
+  <select id="cleanup_months" name="cleanup_months">
+    <option value="">Choose one...</option>
+    <option value="1 to 3 months">1 to 3 months</option>
+    <option value="4 to 6 months">4 to 6 months</option>
+    <option value="7 to 12 months">7 to 12 months</option>
+    <option value="More than a year">More than a year</option>
+    <option value="Not sure">Not sure</option>
+  </select>
+</div>
+<div class="field" id="wrap_cleanup_scope" data-showif="true" style="display:none" data-showif-field="cleanup_needed" data-showif-notequals="No - just want ongoing service starting fresh">
+  <label class="lbl" for="cleanup_scope">Does the cleanup need to cover your entire book history, or just a recent stretch?</label>
+  <div class="hint">If just a recent stretch, the balance sheet right before that stretch also needs verification (that&#x27;s a smaller separate piece).</div>
+  <div class="radio-group" data-field="cleanup_scope">
+    <label class="radio-opt"><input type="radio" name="cleanup_scope" value="Entire history - since QBO was set up, or as far back as anything&#x27;s ever been trusted"> <span>Entire history - since QBO was set up, or as far back as anything&#x27;s ever been trusted</span></label>
+    <label class="radio-opt"><input type="radio" name="cleanup_scope" value="Just a recent stretch - the months above, not the full history"> <span>Just a recent stretch - the months above, not the full history</span></label>
+    <label class="radio-opt"><input type="radio" name="cleanup_scope" value="Not sure"> <span>Not sure</span></label>
+  </div>
+</div>
+<div class="field" id="wrap_known_bs_issues" data-showif="true" style="display:none" data-showif-field="cleanup_needed" data-showif-notequals="No - just want ongoing service starting fresh">
+  <label class="lbl" for="known_bs_issues">Known balance sheet complications (check all that apply)</label>
+  <div class="checkbox-group" data-field="known_bs_issues">
+    <label class="check-opt"><input type="checkbox" name="known_bs_issues" value="Inventory carried on the balance sheet"> <span>Inventory carried on the balance sheet</span></label>
+    <label class="check-opt"><input type="checkbox" name="known_bs_issues" value="Customer deposits or gift cards / store credit outstanding"> <span>Customer deposits or gift cards / store credit outstanding</span></label>
+    <label class="check-opt"><input type="checkbox" name="known_bs_issues" value="Vendor deposits or prepaid expenses"> <span>Vendor deposits or prepaid expenses</span></label>
+    <label class="check-opt"><input type="checkbox" name="known_bs_issues" value="Fixed assets needing a depreciation schedule verified"> <span>Fixed assets needing a depreciation schedule verified</span></label>
+    <label class="check-opt"><input type="checkbox" name="known_bs_issues" value="A/R or A/P open items that look old, unclear, or possibly duplicate"> <span>A/R or A/P open items that look old, unclear, or possibly duplicate</span></label>
+    <label class="check-opt"><input type="checkbox" name="known_bs_issues" value="Loans that might be lumped together or miscategorized"> <span>Loans that might be lumped together or miscategorized</span></label>
+    <label class="check-opt"><input type="checkbox" name="known_bs_issues" value="None that I know of"> <span>None that I know of</span></label>
+  </div>
+</div>
+<div class="field" id="wrap_cleanup_findings_notes">
+  <label class="lbl" for="cleanup_findings_notes">Anything specific you&#x27;ve already found and want to flag? (optional)</label>
+  <textarea id="cleanup_findings_notes" name="cleanup_findings_notes" rows="3" placeholder="e.g. line of credit booked as a credit card, opening balance equity has a large unexplained amount, several loans lumped into one account, etc."></textarea>
+</div>
+<div class="field" id="wrap_most_recent_tax_year_filed" data-showif="true" style="display:none" data-showif-field="cleanup_needed" data-showif-notequals="No - just want ongoing service starting fresh">
+  <label class="lbl" for="most_recent_tax_year_filed">Has your most recent full tax year been filed?</label>
+  <div class="hint">Helps me figure out whether cleanup can end at a filed date or needs to reach further back.</div>
+  <div class="radio-group" data-field="most_recent_tax_year_filed">
+    <label class="radio-opt"><input type="radio" name="most_recent_tax_year_filed" value="Yes - filed"> <span>Yes - filed</span></label>
+    <label class="radio-opt"><input type="radio" name="most_recent_tax_year_filed" value="No - on extension, actively being prepared"> <span>No - on extension, actively being prepared</span></label>
+    <label class="radio-opt"><input type="radio" name="most_recent_tax_year_filed" value="No - and not being actively pursued right now"> <span>No - and not being actively pursued right now</span></label>
+    <label class="radio-opt"><input type="radio" name="most_recent_tax_year_filed" value="Not sure"> <span>Not sure</span></label>
+  </div>
+</div>
+</div>
+
+<div class="panel" id="section_extras">
+  <h2>Anything Else</h2>
+<div class="field" id="wrap_cpa_name">
+  <label class="lbl" for="cpa_name">Your CPA / tax preparer (if you have one)</label>
+  <input type="text" id="cpa_name" name="cpa_name" placeholder="Name, or leave blank">
+</div>
+<div class="field" id="wrap_communication_pref">
+  <label class="lbl" for="communication_pref">Preferred way to hear from me</label>
+  <select id="communication_pref" name="communication_pref">
+    <option value="">Choose one...</option>
+    <option value="Email">Email</option>
+    <option value="Client portal">Client portal</option>
+    <option value="Text">Text</option>
+    <option value="Scheduled calls">Scheduled calls</option>
+    <option value="No preference">No preference</option>
+  </select>
+</div>
+<div class="field" id="wrap_additional_notes">
+  <label class="lbl" for="additional_notes">Anything else I should know before writing the proposal?</label>
+  <textarea id="additional_notes" name="additional_notes" rows="3" placeholder="Optional. Special circumstances, quirks, prior bookkeeper issues, deadlines - anything you want on my radar."></textarea>
+</div>
+</div>
+
+<div class="submit-panel">
+  <p>When you&#x27;re done, click &#x27;Copy My Responses&#x27; at the bottom. Then paste the copied text into a reply to my email so I have your answers to build the proposal from.</p>
+  <button type="button" class="btn" id="copyBtn" onclick="copyResponses()">Copy My Responses</button>
+  <div class="copy-status" id="copyStatus">&nbsp;</div>
+</div>
+
+</form>
+
+<div class="footer-note">
+  Your responses stay on this page until you copy them. Nothing is sent automatically. Peak Bookkeeping does not store this data on any server - you control it fully by choosing when to paste it into your email.
+</div>
+
+</div>
+
+<script>
+// --- Field metadata (from scope-fields.json at build time) ---
+const FIELD_META = {"business_name": {"label": "Business name", "type": "text", "section": "About Your Business"}, "your_name": {"label": "Your name", "type": "text", "section": "About Your Business"}, "your_email": {"label": "Best email for the proposal", "type": "email", "section": "About Your Business"}, "industry": {"label": "Industry", "type": "select", "section": "About Your Business"}, "industry_other_note": {"label": "If 'Other', briefly describe what your business does", "type": "text", "section": "About Your Business"}, "pt_approach": {"label": "For insurance-based PT/healthcare only: how do you want revenue recorded?", "type": "radio", "section": "About Your Business"}, "revenue_range": {"label": "Rough annual revenue range", "type": "select", "section": "About Your Business"}, "entity_type": {"label": "Entity type", "type": "select", "section": "About Your Business"}, "multi_entity": {"label": "Do you own multiple business entities that would need bookkeeping?", "type": "radio", "section": "About Your Business"}, "entity_count": {"label": "How many entities total?", "type": "number", "section": "About Your Business"}, "service_type": {"label": "Which best describes what you're after?", "type": "radio", "section": "What You're Looking For"}, "timeline": {"label": "Timeline to get this in place", "type": "select", "section": "What You're Looking For"}, "time_sensitive": {"label": "Are you preparing for anything time-sensitive? (Check all that apply)", "type": "checkbox_group", "section": "What You're Looking For"}, "current_software": {"label": "What accounting software are you using now?", "type": "select", "section": "Your Current Setup"}, "current_software_other": {"label": "If Other, which one?", "type": "text", "section": "Your Current Setup"}, "books_current": {"label": "How current are your books right now?", "type": "radio", "section": "Your Current Setup"}, "who_does_books": {"label": "Who's doing the books today?", "type": "select", "section": "Your Current Setup"}, "last_trusted_pl": {"label": "When's the last time you got a P&L you actually trusted and used to make a decision?", "type": "select", "section": "Your Current Setup"}, "bank_accounts": {"label": "Number of business bank accounts (checking + savings)", "type": "number", "section": "Financial Accounts"}, "credit_cards": {"label": "Number of business credit cards", "type": "number", "section": "Financial Accounts"}, "loans": {"label": "Number of active loans or lines of credit", "type": "number", "section": "Financial Accounts"}, "loans_same_lender": {"label": "Are all your loans with the same lender or different lenders?", "type": "radio", "section": "Financial Accounts"}, "merchant_accounts": {"label": "Number of merchant processor accounts (Stripe, Square, PayPal Business, etc.)", "type": "number", "section": "Financial Accounts"}, "monthly_transactions": {"label": "Rough monthly transaction volume across all accounts", "type": "select", "section": "Financial Accounts"}, "runs_payroll": {"label": "Do you run payroll?", "type": "radio", "section": "Payroll"}, "payroll_provider": {"label": "Payroll provider", "type": "select", "section": "Payroll"}, "payroll_provider_other": {"label": "If Other, which one?", "type": "text", "section": "Payroll"}, "w2_employees": {"label": "Number of W-2 employees", "type": "number", "section": "Payroll"}, "pay_frequency": {"label": "Pay frequency", "type": "radio", "section": "Payroll"}, "contractors_1099": {"label": "Approximate 1099-eligible contractor count (paid over $2,000/year)", "type": "number", "section": "Payroll"}, "collects_sales_tax": {"label": "Do you collect sales tax?", "type": "radio", "section": "Sales Tax"}, "sales_tax_jurisdictions": {"label": "How many jurisdictions (states / counties / cities) do you file in?", "type": "number", "section": "Sales Tax"}, "wants_ar": {"label": "A/R management (invoicing, payment recording, aging reports, automated overdue reminders)", "type": "checkbox", "section": "Additional Services You Might Want"}, "wants_ap": {"label": "A/P / Bill pay (bill entry, aging, scheduling payments through QuickBooks Online Bill Pay after your approval)", "type": "checkbox", "section": "Additional Services You Might Want"}, "has_inventory": {"label": "Inventory tracking (SKU-level reporting, COGS entries, monthly reconciliation)", "type": "checkbox", "section": "Additional Services You Might Want"}, "wants_class_tracking": {"label": "Class / location / project / department tracking (P&L sliced by segment)", "type": "checkbox", "section": "Additional Services You Might Want"}, "wants_advisory": {"label": "Advisory (quarterly financial review + KPI dashboard, non-tax) - $495/mo add-on", "type": "checkbox", "section": "Additional Services You Might Want"}, "cleanup_needed": {"label": "Do you think your books need catch-up or cleanup before ongoing bookkeeping can start?", "type": "radio", "section": "Cleanup / Balance Sheet Issues"}, "cleanup_months": {"label": "Rough months of cleanup needed", "type": "select", "section": "Cleanup / Balance Sheet Issues"}, "cleanup_scope": {"label": "Does the cleanup need to cover your entire book history, or just a recent stretch?", "type": "radio", "section": "Cleanup / Balance Sheet Issues"}, "known_bs_issues": {"label": "Known balance sheet complications (check all that apply)", "type": "checkbox_group", "section": "Cleanup / Balance Sheet Issues"}, "cleanup_findings_notes": {"label": "Anything specific you've already found and want to flag? (optional)", "type": "textarea", "section": "Cleanup / Balance Sheet Issues"}, "most_recent_tax_year_filed": {"label": "Has your most recent full tax year been filed?", "type": "radio", "section": "Cleanup / Balance Sheet Issues"}, "cpa_name": {"label": "Your CPA / tax preparer (if you have one)", "type": "text", "section": "Anything Else"}, "communication_pref": {"label": "Preferred way to hear from me", "type": "select", "section": "Anything Else"}, "additional_notes": {"label": "Anything else I should know before writing the proposal?", "type": "textarea", "section": "Anything Else"}};
+
+// --- Conditional show/hide logic ---
+function evaluateShowIf(el) {
+  const field = el.dataset.showifField;
+  const equals = el.dataset.showifEquals;
+  const notEquals = el.dataset.showifNotequals;
+  const greaterThan = el.dataset.showifGreaterthan;
+
+  // Look up the field's current value
+  let currentValue = null;
+  const radios = document.querySelectorAll(`input[type="radio"][name="${field}"]:checked`);
+  if (radios.length > 0) {
+    currentValue = radios[0].value;
+  } else {
+    const input = document.getElementById(field);
+    if (input) currentValue = input.value;
+  }
+
+  let show = false;
+  if (equals !== undefined) {
+    show = (currentValue === equals);
+  } else if (notEquals !== undefined) {
+    show = (currentValue !== null && currentValue !== "" && currentValue !== notEquals);
+  } else if (greaterThan !== undefined) {
+    const numVal = parseFloat(currentValue);
+    show = !isNaN(numVal) && numVal > parseFloat(greaterThan);
+  }
+
+  el.style.display = show ? "" : "none";
+}
+
+function updateConditionals() {
+  document.querySelectorAll('[data-showif="true"]').forEach(evaluateShowIf);
+}
+
+// --- Radio/checkbox visual selected state ---
+function updateSelectedState() {
+  document.querySelectorAll('.radio-opt').forEach(el => {
+    const input = el.querySelector('input[type="radio"]');
+    if (input && input.checked) el.classList.add('selected');
+    else el.classList.remove('selected');
+  });
+  document.querySelectorAll('.check-opt, .check-single').forEach(el => {
+    const input = el.querySelector('input[type="checkbox"]');
+    if (input && input.checked) el.classList.add('selected');
+    else el.classList.remove('selected');
+  });
+}
+
+document.addEventListener('input', () => {
+  updateConditionals();
+  updateSelectedState();
+});
+document.addEventListener('change', () => {
+  updateConditionals();
+  updateSelectedState();
+});
+document.addEventListener('DOMContentLoaded', () => {
+  updateConditionals();
+  updateSelectedState();
+});
+
+// --- Copy responses to clipboard ---
+function collectResponses() {
+  const sections = {};
+  const form = document.getElementById('intakeForm');
+
+  Object.keys(FIELD_META).forEach(fid => {
+    const meta = FIELD_META[fid];
+    // Skip fields inside hidden sections/wrappers
+    const wrap = document.getElementById('wrap_' + fid);
+    if (wrap && wrap.style.display === 'none') return;
+    let parentSection = wrap;
+    while (parentSection && !parentSection.classList.contains('panel')) {
+      parentSection = parentSection.parentElement;
+    }
+    if (parentSection && parentSection.style.display === 'none') return;
+
+    let value = null;
+
+    if (meta.type === 'text' || meta.type === 'email' || meta.type === 'number' || meta.type === 'textarea' || meta.type === 'select') {
+      const el = document.getElementById(fid);
+      if (el && el.value.trim() !== '') value = el.value.trim();
+    } else if (meta.type === 'radio') {
+      const checked = form.querySelector(`input[type="radio"][name="${fid}"]:checked`);
+      if (checked) value = checked.value;
+    } else if (meta.type === 'checkbox') {
+      const el = document.getElementById(fid);
+      if (el && el.checked) value = 'Yes';
+    } else if (meta.type === 'checkbox_group') {
+      const checked = form.querySelectorAll(`input[type="checkbox"][name="${fid}"]:checked`);
+      if (checked.length > 0) {
+        value = Array.from(checked).map(c => c.value).join('; ');
+      }
+    }
+
+    if (value !== null) {
+      if (!sections[meta.section]) sections[meta.section] = [];
+      sections[meta.section].push({label: meta.label, value: value});
+    }
+  });
+
+  return sections;
+}
+
+function formatResponses(sections) {
+  const lines = [];
+  lines.push('=== SCOPE INTAKE RESPONSES ===');
+  lines.push('');
+  Object.keys(sections).forEach(sectionTitle => {
+    lines.push('-- ' + sectionTitle.toUpperCase() + ' --');
+    sections[sectionTitle].forEach(item => {
+      lines.push(item.label + ': ' + item.value);
+    });
+    lines.push('');
+  });
+  return lines.join('\n');
+}
+
+function copyResponses() {
+  const sections = collectResponses();
+  const text = formatResponses(sections);
+  const btn = document.getElementById('copyBtn');
+  const status = document.getElementById('copyStatus');
+
+  if (Object.keys(sections).length === 0) {
+    status.textContent = 'Please fill out at least a few fields before copying.';
+    status.className = 'copy-status';
+    return;
+  }
+
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied to Clipboard';
+    btn.classList.add('copied');
+    status.className = 'copy-status success';
+    status.textContent = 'Now paste this into a reply to Madison\'s email. Your responses stay in your clipboard until you paste them.';
+    setTimeout(() => {
+      btn.textContent = 'Copy My Responses';
+      btn.classList.remove('copied');
+    }, 4000);
+  }).catch(err => {
+    // Fallback: show text in a textarea for manual copy
+    const fallback = prompt('Copy the text below and paste it into your email reply:', text);
+    status.className = 'copy-status';
+    status.textContent = 'If copy didn\'t work, use the popup fallback.';
+  });
+}
+</script>
+
+</body>
+</html>
