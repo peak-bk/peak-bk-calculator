@@ -231,6 +231,7 @@
       <option value="1.10">Real Estate / Agency</option>
       <option value="1.20">Nonprofit (grant tracking)</option>
       <option value="1.25">Trades / Construction (WIP)</option>
+      <option value="1.25">Farm / Ranch / Agriculture</option>
       <option value="1.20">Restaurant / Hospitality</option>
       <option value="1.25">Retail (POS / inventory / sales tax)</option>
       <option value="1.30">E-commerce (multi-channel / inventory)</option>
@@ -375,7 +376,7 @@ function calc() {
   const extraTxnCost = Math.max(0, txns - tier.txns) * EXTRA_TXN_RATE;
   const extraAcctCost = Math.max(0, accts - tier.accts) * EXTRA_ACCT_RATE;
   const baseAdjusted = (tier.price + extraTxnCost + extraAcctCost) * industryMult;
-  const complexityBump = RECON_CUTOVER_BASE + RECON_CUTOVER_COMPLEXITY_HOURS * RECON_HOURLY_RATE;
+  const complexityBump = RECON_CUTOVER_BASE + RECON_CUTOVER_COMPLEXITY_HOURS * AD_HOC_HOURLY_RATE;
 
   if (path === 'ongoing') {
     const monthlyLow = baseAdjusted;
